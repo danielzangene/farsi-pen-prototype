@@ -87,7 +87,7 @@ export default function PathPage() {
             </span>
           </p>
         </div>
-        <p className="mt-3 text-sm text-muted">Steps unlock in order, but you can open any of them to skip ahead.</p>
+        <p className="mt-3 text-sm text-muted">Go in order, or open any step to skip ahead.</p>
       </div>
 
       <ol className="space-y-4">
