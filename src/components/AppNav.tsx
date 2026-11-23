@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, LayoutGrid, AudioLines, Bookmark, BookHeart, BookOpen, BookOpenText, ChartColumn, ChevronRight, CircleUserRound, Clapperboard, Compass, Flame, GraduationCap, Headphones, House, Layers, MessagesSquare, Mic, PenLine, Puzzle, Repeat, Route, Star } from "lucide-react";
+import { X, LayoutGrid, AudioLines, Bookmark, BookHeart, BookOpenText, ChartColumn, ChevronRight, CircleUserRound, Clapperboard, Compass, Flame, GraduationCap, Headphones, House, Layers, MessagesSquare, Mic, PenLine, Puzzle, Repeat, Route, Star } from "lucide-react";
 import { hasBackend } from "@/lib/backend";
 import { buildDeck } from "@/lib/flashcards";
 import { currentStreak, useProgress } from "@/lib/store";
@@ -22,6 +22,9 @@ const PRIMARY: NavItem[] = [
   { href: "/app/progress/", label: "Progress", icon: ChartColumn, tone: "sky" },
   { href: "/app/settings/", label: "Profile", icon: CircleUserRound, tone: "pista" },
 ];
+/** Pages with no menu entry of their own that count as part of another page (lessons are opened from Journey). */
+const ALSO_UNDER: Record<string, string[]> = { "/app/path/": ["/app/lessons/"] };
+
 const HOME = 0;
 const PATH = 1;
 const EXAMS = 2;
@@ -37,7 +40,6 @@ const SECONDARY: NavItem[] = [
   { href: "/app/practice/", label: "Daily Practice", icon: Repeat, tone: "firuze", parent: HOME },
   ...(hasBackend ? [{ href: "/app/tutor/", label: "AI tutor", icon: MessagesSquare, tone: "pista" as const, parent: HOME }] : []),
   { href: "/app/sounds/", label: "Sounds", icon: AudioLines, tone: "sky", parent: PATH },
-  { href: "/app/lessons/", label: "Lessons", icon: BookOpen, tone: "saffron", parent: PATH },
   { href: "/app/missions/", label: "Missions", icon: Compass, tone: "firuze", parent: PATH },
   { href: "/app/grammar/", label: "Grammar", icon: Puzzle, tone: "plum", parent: PATH },
   { href: "/app/reading/", label: "Reading", icon: BookOpenText, tone: "sky", parent: PATH },
@@ -96,7 +98,8 @@ function StatChips({ streak, xp }: { streak: number; xp: number }) {
 export function AppNav() {
   const pathname = usePathname();
   const s = useProgress();
-  const isActive = (href: string, exact?: boolean) => (exact ? pathname === href || pathname === href.slice(0, -1) : pathname.startsWith(href.slice(0, -1)));
+  const isActive = (href: string, exact?: boolean) =>
+    exact ? pathname === href || pathname === href.slice(0, -1) : [href, ...(ALSO_UNDER[href] ?? [])].some((h) => pathname.startsWith(h.slice(0, -1)));
   const streak = currentStreak(s);
   const [sheet, setSheet] = useState<"sections" | "profile" | null>(null);
 
@@ -224,7 +227,7 @@ const ProfileContent = dynamic(() => import("@/components/ProfileContent"), {
  * My cards, SAMFA and Placement are reached from their tabs instead.
  */
 const MENU_GROUPS: { title: string; items: NavItem[] }[] = [
-  { title: "Learn", hrefs: ["/app/path/", "/app/lessons/", "/app/grammar/", "/app/alphabet/", "/app/sounds/"] },
+  { title: "Learn", hrefs: ["/app/path/", "/app/grammar/", "/app/alphabet/", "/app/sounds/"] },
   { title: "Practise", hrefs: ["/app/practice/", "/app/words/", "/app/speak/", "/app/listen/"] },
   { title: "Adventures", hrefs: ["/app/missions/", "/app/scenes/", "/app/reading/", "/app/poetry/", "/app/tutor/"] },
 ].map((g) => ({ title: g.title, items: g.hrefs.flatMap((h) => [...PRIMARY, ...SECONDARY].filter((l) => l.href === h)) }));

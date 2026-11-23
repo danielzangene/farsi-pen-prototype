@@ -40,6 +40,8 @@ export default function PathPage() {
   const toggle = (id: string) => setOpen((o) => (o.includes(id) ? o.filter((x) => x !== id) : [...o, id]));
   const all = sections.flatMap((x) => x.items);
   const done = all.filter((i) => i.done).length;
+  const lessons = all.filter((i) => i.kind === "lesson");
+  const lessonsDone = lessons.filter((i) => i.done).length;
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -72,14 +74,20 @@ export default function PathPage() {
         </section>
       )}
 
-      <div className="card flex items-center gap-4 p-4">
-        <div className="min-w-0 flex-1">
-          <p className="font-semibold">Your journey</p>
-          <ProgressBar value={all.length ? done / all.length : 0} tone="firuze" size="sm" className="mt-2" />
+      <div className="card p-4">
+        <div className="flex items-center gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold">Your journey</p>
+            <ProgressBar value={all.length ? done / all.length : 0} tone="firuze" size="sm" className="mt-2" />
+          </div>
+          <p className="shrink-0 text-end text-sm text-muted">
+            <span className="font-bold text-ink">{done}</span> of {all.length} steps
+            <span className="block">
+              <span className="font-bold text-ink">{lessonsDone}</span> of {lessons.length} lessons
+            </span>
+          </p>
         </div>
-        <p className="shrink-0 text-sm text-muted">
-          <span className="font-bold text-ink">{done}</span> of {all.length} steps
-        </p>
+        <p className="mt-3 text-sm text-muted">Steps unlock in order, but you can open any of them to skip ahead.</p>
       </div>
 
       <ol className="space-y-4">
@@ -159,6 +167,15 @@ export default function PathPage() {
           );
         })}
       </ol>
+
+      <section className="card p-5 text-center" aria-labelledby="more-heading">
+        <h2 id="more-heading" className="text-lg font-extrabold">
+          More on the way
+        </h2>
+        <p className="mx-auto mt-1 max-w-md text-sm text-muted">
+          Level 5 is being written. Your reviews keep coming back when they&apos;re due, and missions, grammar and poetry go further than the lessons.
+        </p>
+      </section>
 
       <LearnAndPractise />
     </div>

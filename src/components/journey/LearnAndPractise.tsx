@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { AudioLines, BookOpen, Headphones, Layers, Mic, Puzzle } from "lucide-react";
+import { AudioLines, Headphones, Layers, Mic, Puzzle } from "lucide-react";
 import { buildDeck } from "@/lib/flashcards";
 import { journey } from "@/lib/progress";
 import { useProgress } from "@/lib/store";
@@ -19,7 +19,6 @@ export function LearnAndPractise() {
   const count = (id: string, noun: string) => `${j[id].have} of ${j[id].total} ${noun}`;
 
   const tiles: { href: string; title: string; text: string; icon: typeof Mic; tone: Tone }[] = [
-    { href: "/app/lessons/", title: "Lessons", text: count("lessons", "done"), icon: BookOpen, tone: "saffron" },
     { href: "/app/grammar/", title: "Grammar", text: count("grammar", "concepts"), icon: Puzzle, tone: "plum" },
     { href: "/app/sounds/", title: "Sounds", text: count("sounds", "stages"), icon: AudioLines, tone: "sky" },
     { href: "/app/words/", title: "Words", text: due ? `${due} cards due today` : `${WORDS.length} words`, icon: Layers, tone: "firuze" },

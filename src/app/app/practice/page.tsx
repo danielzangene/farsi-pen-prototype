@@ -52,8 +52,8 @@ export default function PracticePage() {
           </span>
           <h1 className="mt-5 text-2xl font-extrabold">Nothing to practise yet</h1>
           <p className="mt-2 max-w-sm font-semibold text-muted">Finish a lesson and its words will show up here.</p>
-          <Link href="/app/lessons/" className="btn-primary btn-lg mt-6 w-full sm:w-auto">
-            Go to lessons
+          <Link href="/app/path/" className="btn-primary btn-lg mt-6 w-full sm:w-auto">
+            Go to your journey
           </Link>
         </div>
       ) : (
