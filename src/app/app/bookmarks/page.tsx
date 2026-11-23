@@ -1,25 +1,95 @@
 "use client";
-import { useState } from "react";
-import Link from "next/link";
-import { Bookmark, Eye, EyeOff, Play, RotateCcw, Target, ThumbsUp, Trophy, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Bookmark, Eye, EyeOff, Keyboard, RotateCcw, Target, ThumbsUp, Trophy, Zap } from "lucide-react";
 import { WORD_BY_ID } from "@/content/words";
+import { buildDeck, type Deck } from "@/lib/flashcards";
 import { getWord } from "@/lib/words";
 import { completePractice, toggleHidden, useHydrated, useProgress, type SessionSummary } from "@/lib/store";
-import { shuffle } from "@/lib/util";
+import { cx, shuffle } from "@/lib/util";
 import { CardControls } from "@/components/CardControls";
+import { FlashcardSession } from "@/components/FlashcardSession";
 import { RecallRound } from "@/components/RecallRound";
 import { PageHeader, Segmented, StatCard } from "@/components/ui";
 import { WordCard } from "@/components/WordCard";
+import { Browse } from "@/components/words/Browse";
+import { DeckPicker } from "@/components/words/DeckPicker";
 
-export default function BookmarksPage() {
+type Tab = "review" | "saved" | "browse";
+const TAB_KEY = "farsipen:mycards-tab";
+
+/**
+ * My cards: everything about words in one place. Review (today's due cards, your saved
+ * cards or one lesson's words as flashcards), your saved and hidden words, and Browse.
+ * Opened from the tab bar and from Journey; /app/words/ redirects here.
+ */
+export default function MyCardsPage() {
   const s = useProgress();
   const hydrated = useHydrated();
-  const [tab, setTab] = useState<"bookmarks" | "hidden">("bookmarks");
+  const [tab, setTab] = useState<Tab>("review");
+  const [session, setSession] = useState<{ deck: Deck; title: string; key: number } | null>(null);
+
+  // Remember the last tab (per-viewer convenience).
+  useEffect(() => {
+    try {
+      const t = localStorage.getItem(TAB_KEY);
+      if (t === "review" || t === "saved" || t === "browse") setTab(t);
+    } catch {}
+  }, []);
+  const changeTab = (t: Tab) => {
+    setTab(t);
+    try {
+      localStorage.setItem(TAB_KEY, t);
+    } catch {}
+  };
+
+  // Opened from the Today plan (?start=today): go straight into today's deck.
+  useEffect(() => {
+    if (!hydrated) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("start") !== "today") return;
+    window.history.replaceState(null, "", window.location.pathname);
+    const deck = buildDeck("today", s);
+    if (deck.ids.length) setSession({ deck, title: "Today", key: Date.now() });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated]);
+
+  if (!hydrated) return null;
+  if (session) return <FlashcardSession key={session.key} deck={session.deck} title={session.title} onExit={() => setSession(null)} />;
+
+  return (
+    <div>
+      <PageHeader title="My cards" subtitle="Review your words, keep the ones you save, and look up any word.">
+        <Segmented
+          label="View"
+          value={tab}
+          onChange={changeTab}
+          options={[
+            { value: "review", label: "Review" },
+            { value: "saved", label: `Saved (${s.bookmarks.length})` },
+            { value: "browse", label: "Browse" },
+          ]}
+        />
+      </PageHeader>
+      {tab === "review" ? (
+        <DeckPicker onStart={(deck, title) => setSession({ deck, title, key: Date.now() })} />
+      ) : tab === "saved" ? (
+        <Saved onFindWords={() => changeTab("review")} />
+      ) : (
+        <Browse />
+      )}
+    </div>
+  );
+}
+
+/** Saved words (and the ones hidden from practice), with typed-recall practice. */
+function Saved({ onFindWords }: { onFindWords: () => void }) {
+  const s = useProgress();
+  const [list, setList] = useState<"bookmarks" | "hidden">("bookmarks");
   const [practising, setPractising] = useState<string[] | null>(null);
   const [result, setResult] = useState<{ r: SessionSummary; xp: number } | null>(null);
   const [round, setRound] = useState(0);
 
-  const ids = tab === "bookmarks" ? s.bookmarks : s.hidden;
+  const ids = list === "bookmarks" ? s.bookmarks : s.hidden;
   const words = ids.map((id) => getWord(id, s.customWords)).filter((w): w is NonNullable<typeof w> => !!w);
 
   const startPractice = () => {
@@ -49,7 +119,7 @@ export default function BookmarksPage() {
         <span className="grid size-24 animate-pop place-items-center rounded-full bg-saffron text-on-accent">
           <Trophy className="size-12" />
         </span>
-        <h1 className="mt-5 text-3xl font-extrabold text-saffron-ink sm:text-4xl">My cards practised!</h1>
+        <h2 className="mt-5 text-3xl font-extrabold text-saffron-ink sm:text-4xl">My cards practised!</h2>
         <p className="mt-2 font-semibold text-muted">
           {result.r.correct}/{result.r.total} right first time
         </p>
@@ -73,45 +143,50 @@ export default function BookmarksPage() {
 
   return (
     <div>
-      <PageHeader title="My cards" subtitle="Words you saved — your personal flashcard set.">
-        <Segmented
-          label="List"
-          value={tab}
-          onChange={setTab}
-          options={[
-            { value: "bookmarks", label: `Saved (${s.bookmarks.length})` },
-            { value: "hidden", label: `Hidden (${s.hidden.length})` },
-          ]}
-        />
-      </PageHeader>
-
-      {tab === "bookmarks" && words.length > 0 && (
-        <button type="button" className="btn-primary btn-lg mb-6 w-full sm:w-auto" onClick={startPractice}>
-          <Play className="size-5 fill-current" /> Practise my cards
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        {list === "bookmarks" && words.length > 0 && (
+          <button type="button" className="btn-primary btn-lg w-full sm:w-auto" onClick={startPractice}>
+            <Keyboard className="size-5" /> Type from memory
+          </button>
+        )}
+        <button
+          type="button"
+          className={cx("btn-ghost btn-sm", list === "bookmarks" && words.length > 0 && "sm:ms-auto")}
+          onClick={() => setList(list === "bookmarks" ? "hidden" : "bookmarks")}
+        >
+          {list === "bookmarks" ? (
+            <>
+              <EyeOff className="size-4" /> Hidden words ({s.hidden.length})
+            </>
+          ) : (
+            <>
+              <Bookmark className="size-4" /> Back to saved ({s.bookmarks.length})
+            </>
+          )}
         </button>
-      )}
+      </div>
 
-      {!hydrated ? null : words.length === 0 ? (
+      {words.length === 0 ? (
         <div className="card mx-auto flex max-w-xl flex-col items-center p-8 text-center">
           <span
             className={
-              tab === "bookmarks"
+              list === "bookmarks"
                 ? "grid size-20 place-items-center rounded-full bg-saffron-soft text-saffron-ink"
                 : "grid size-20 place-items-center rounded-full bg-paper text-muted"
             }
           >
-            {tab === "bookmarks" ? <Bookmark className="size-10" /> : <EyeOff className="size-10" />}
+            {list === "bookmarks" ? <Bookmark className="size-10" /> : <EyeOff className="size-10" />}
           </span>
-          <h2 className="mt-5 text-2xl font-extrabold">{tab === "bookmarks" ? "No cards saved yet" : "No hidden words"}</h2>
+          <h2 className="mt-5 text-2xl font-extrabold">{list === "bookmarks" ? "No cards saved yet" : "No hidden words"}</h2>
           <p className="mt-2 max-w-sm font-semibold text-muted">
-            {tab === "bookmarks"
-              ? "Tap the bookmark icon (Add to my cards) on any word, in flashcards, lessons or the word list, to collect it here."
+            {list === "bookmarks"
+              ? "Tap the bookmark icon (Add to my cards) on any word, in flashcards, lessons or Browse, to collect it here."
               : "Words you hide during practice appear here. They won't come up in Daily Practice."}
           </p>
-          {tab === "bookmarks" && (
-            <Link href="/app/words/" className="btn-secondary mt-6">
+          {list === "bookmarks" && (
+            <button type="button" className="btn-secondary mt-6" onClick={onFindWords}>
               Go to flashcards
-            </Link>
+            </button>
           )}
         </div>
       ) : (
@@ -121,7 +196,7 @@ export default function BookmarksPage() {
               key={w.id}
               word={w}
               extra={
-                tab === "hidden" && (
+                list === "hidden" && (
                   <button type="button" className="btn-ghost btn-sm" onClick={() => toggleHidden(w.id)}>
                     <Eye className="size-4" /> Unhide
                   </button>

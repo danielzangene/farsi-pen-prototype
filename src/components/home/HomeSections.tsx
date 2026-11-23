@@ -317,7 +317,7 @@ export function PracticeStudio() {
   const s = useProgress();
   const due = buildDeck("today", s).ids.length;
   const tools: { href: string; title: string; text: string; icon: typeof Mic; tone: Tone; badge?: number }[] = [
-    { href: "/app/words/", title: "Flashcards", text: due ? `${due} cards for today` : "Words and dictionary", icon: Layers, tone: "sky", badge: due || undefined },
+    { href: "/app/bookmarks/", title: "Flashcards", text: due ? `${due} cards for today` : "Words and dictionary", icon: Layers, tone: "sky", badge: due || undefined },
     { href: "/app/speak/", title: "Speak", text: "Say it, see each sound", icon: Mic, tone: "anar" },
     { href: "/app/scenes/", title: "Scenes", text: "Play a part, line by line", icon: Clapperboard, tone: "plum" },
     { href: "/app/listen/", title: "Hands-free", text: "Hear it, say it, repeat", icon: Headphones, tone: "firuze" },

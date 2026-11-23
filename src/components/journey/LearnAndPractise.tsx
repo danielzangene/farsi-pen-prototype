@@ -21,7 +21,7 @@ export function LearnAndPractise() {
   const tiles: { href: string; title: string; text: string; icon: typeof Mic; tone: Tone }[] = [
     { href: "/app/grammar/", title: "Grammar", text: count("grammar", "concepts"), icon: Puzzle, tone: "plum" },
     { href: "/app/sounds/", title: "Sounds", text: count("sounds", "stages"), icon: AudioLines, tone: "sky" },
-    { href: "/app/words/", title: "Words", text: due ? `${due} cards due today` : `${WORDS.length} words`, icon: Layers, tone: "firuze" },
+    { href: "/app/bookmarks/", title: "My cards", text: due ? `${due} cards due today` : `${WORDS.length} words`, icon: Layers, tone: "firuze" },
     { href: "/app/speak/", title: "Speak", text: "Say it, see each sound", icon: Mic, tone: "plum" },
     { href: "/app/listen/", title: "Hands-free", text: "Hear it, say it, repeat", icon: Headphones, tone: "pista" },
   ];

@@ -4,9 +4,8 @@ import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, LayoutGrid, AudioLines, Bookmark, BookHeart, BookOpenText, ChartColumn, ChevronRight, CircleUserRound, Clapperboard, Compass, Flame, GraduationCap, Headphones, House, Layers, MessagesSquare, Mic, PenLine, Puzzle, Repeat, Route, Star } from "lucide-react";
+import { X, LayoutGrid, AudioLines, Bookmark, BookHeart, BookOpenText, ChartColumn, ChevronRight, CircleUserRound, Clapperboard, Compass, Flame, GraduationCap, Headphones, House, MessagesSquare, Mic, PenLine, Puzzle, Repeat, Route, Star } from "lucide-react";
 import { hasBackend } from "@/lib/backend";
-import { buildDeck } from "@/lib/flashcards";
 import { currentStreak, useProgress } from "@/lib/store";
 import { cx, IS_DEV_SITE } from "@/lib/util";
 import { Avatar } from "@/components/Avatar";
@@ -23,7 +22,7 @@ const PRIMARY: NavItem[] = [
   { href: "/app/settings/", label: "Profile", icon: CircleUserRound, tone: "pista" },
 ];
 /** Pages with no menu entry of their own that count as part of another page (lessons are opened from Journey). */
-const ALSO_UNDER: Record<string, string[]> = { "/app/path/": ["/app/lessons/"] };
+const ALSO_UNDER: Record<string, string[]> = { "/app/path/": ["/app/lessons/"], "/app/bookmarks/": ["/app/words/"] };
 
 const HOME = 0;
 const PATH = 1;
@@ -33,7 +32,6 @@ const PROFILE = 4;
 
 /** Every other page, grouped under the tab it belongs to (shown in the sidebar on desktop). */
 const SECONDARY: NavItem[] = [
-  { href: "/app/words/", label: "Words", icon: Layers, tone: "firuze", parent: PATH },
   { href: "/app/speak/", label: "Speak", icon: Mic, tone: "plum", parent: PATH },
   { href: "/app/scenes/", label: "Scenes", icon: Clapperboard, tone: "saffron", parent: HOME },
   { href: "/app/listen/", label: "Hands-free", icon: Headphones, tone: "pista", parent: PATH },
@@ -224,18 +222,15 @@ const ProfileContent = dynamic(() => import("@/components/ProfileContent"), {
 /**
  * Groups in the Sections sheet (and the desktop sidebar), by what the learner wants to do:
  * learn something new, practise daily, or go on adventures with real Persian. Listed in display order.
- * My cards, SAMFA and Placement are reached from their tabs instead.
+ * My cards (which holds Words), SAMFA and Placement are reached from their tabs instead.
  */
 const MENU_GROUPS: { title: string; items: NavItem[] }[] = [
   { title: "Learn", hrefs: ["/app/path/", "/app/grammar/", "/app/alphabet/", "/app/sounds/"] },
-  { title: "Practise", hrefs: ["/app/practice/", "/app/words/", "/app/speak/", "/app/listen/"] },
+  { title: "Practise", hrefs: ["/app/practice/", "/app/speak/", "/app/listen/"] },
   { title: "Adventures", hrefs: ["/app/missions/", "/app/scenes/", "/app/reading/", "/app/poetry/", "/app/tutor/"] },
 ].map((g) => ({ title: g.title, items: g.hrefs.flatMap((h) => [...PRIMARY, ...SECONDARY].filter((l) => l.href === h)) }));
 
 function SectionsList({ isActive }: { isActive: (href: string) => boolean }) {
-  const s = useProgress();
-  const due = buildDeck("today", s).ids.length;
-  const badges: Record<string, number | undefined> = { "/app/words/": due || undefined };
   return MENU_GROUPS.map((g, gi) => (
     <section key={g.title} aria-labelledby={`menu-${g.title}`}>
       <h3 id={`menu-${g.title}`} className={cx("eyebrow mb-2 text-muted", gi > 0 && "mt-5")}>
@@ -274,11 +269,6 @@ function SectionsList({ isActive }: { isActive: (href: string) => boolean }) {
               >
                 <l.icon className={cx("size-[22px] shrink-0", l.tone ? TONE[l.tone].ink : "text-muted")} strokeWidth={2} aria-hidden />
                 <span className="min-w-0 flex-1 truncate">{l.label}</span>
-                {badges[l.href] && (
-                  <span className={cx("chip shrink-0", l.tone ? `${TONE[l.tone].soft} ${TONE[l.tone].ink}` : "bg-paper")} aria-label={`${badges[l.href]} due today`}>
-                    {badges[l.href]}
-                  </span>
-                )}
               </Link>
             </li>
           );

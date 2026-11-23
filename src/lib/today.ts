@@ -60,7 +60,7 @@ export function planToday(s: ProgressState, now = new Date()): TodayStep[] {
       emoji: "🗂️",
       title: due > 0 ? `Review ${due} word${due === 1 ? "" : "s"}` : "Words reviewed",
       detail: "Flashcards, right before you'd forget them",
-      href: "/app/words/?start=today",
+      href: "/app/bookmarks/?start=today",
       done: due === 0 && done.has("review"),
     });
   }

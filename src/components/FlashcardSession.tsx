@@ -143,7 +143,7 @@ export function FlashcardSession({
   return (
     <div className="mx-auto max-w-2xl">
       <SessionHeader
-        exitHref="/app/words/"
+        exitHref="/app/bookmarks/"
         onExit={onExit}
         progress={done / deck.ids.length}
         right={
