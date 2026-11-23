@@ -32,7 +32,7 @@ export default function GrammarPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <PageHeader title="Grammar" subtitle={`${GRAMMAR.length} concepts from first sentences to upper-intermediate.`} />
+      <PageHeader back={{ href: "/app/path/", label: "Journey" }} title="Grammar" subtitle={`${GRAMMAR.length} concepts from first sentences to upper-intermediate.`} />
       <div className="mb-6 flex items-center gap-3">
         <span className="eyebrow whitespace-nowrap text-plum-ink">
           {passed}/{GRAMMAR.length} learned

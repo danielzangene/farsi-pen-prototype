@@ -8,7 +8,7 @@ import { completeSpeaking, useHydrated, useProgress, type SessionSummary } from 
 import { resolveEngine } from "@/lib/stt";
 import { shuffle } from "@/lib/util";
 import { SpeakRound } from "@/components/SpeakRound";
-import { StatCard } from "@/components/ui";
+import { StatCard, BackLink } from "@/components/ui";
 
 const SESSION = 8;
 
@@ -73,6 +73,7 @@ export default function SpeakPage() {
 
   return (
     <div className="mx-auto max-w-xl space-y-6 pt-4 sm:pt-10">
+      <BackLink href="/app/path/" label="Journey" className="-mb-3" />
       <div className="card flex flex-col items-center p-6 text-center sm:p-8">
         <span className="grid size-20 place-items-center rounded-full bg-anar-soft text-anar-ink">
           <Mic className="size-10" />

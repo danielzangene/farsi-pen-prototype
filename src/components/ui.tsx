@@ -4,7 +4,7 @@
 // farsi-pen-design-system skill for when to use which.
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Bookmark, CheckCircle2, Snail, Volume2, X, XCircle } from "lucide-react";
+import { Bookmark, CheckCircle2, ChevronLeft, Snail, Volume2, X, XCircle } from "lucide-react";
 import type { Word } from "@/content/words";
 import { canSpeak, onVoicesChanged, speak } from "@/lib/speech";
 import { toggleBookmark, useProgress, type Settings } from "@/lib/store";
@@ -181,10 +181,31 @@ export function Segmented<T extends string>({
   );
 }
 
-export function PageHeader({ title, subtitle, children }: { title: string; subtitle?: React.ReactNode; children?: React.ReactNode }) {
+/** A small "‹ Journey" style link back to the page this one lives under. */
+export function BackLink({ href, label, className }: { href: string; label: string; className?: string }) {
+  return (
+    <Link href={href} className={cx("-ml-1 inline-flex min-h-11 items-center gap-0.5 rounded-xl pr-2 text-[17px] font-semibold text-firuze-ink transition-opacity duration-[60ms] hover:opacity-80 active:opacity-60", className)}>
+      <ChevronLeft className="size-5" strokeWidth={2.5} aria-hidden />
+      {label}
+    </Link>
+  );
+}
+
+export function PageHeader({
+  title,
+  subtitle,
+  back,
+  children,
+}: {
+  title: string;
+  subtitle?: React.ReactNode;
+  back?: { href: string; label: string };
+  children?: React.ReactNode;
+}) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
+        {back && <BackLink {...back} className="mb-1" />}
         <h1 className="text-3xl font-extrabold tracking-tight">{title}</h1>
         {subtitle && <p className="mt-1 font-semibold text-muted">{subtitle}</p>}
       </div>

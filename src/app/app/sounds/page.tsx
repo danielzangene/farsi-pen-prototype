@@ -176,7 +176,7 @@ export default function SoundsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
-      <PageHeader title="Persian sounds" subtitle="The sounds English doesn't have: a path of short stages, a guide to making each one, and a daily workout on your weakest." />
+      <PageHeader back={{ href: "/app/path/", label: "Journey" }} title="Persian sounds" subtitle="The sounds English doesn't have: a path of short stages, a guide to making each one, and a daily workout on your weakest." />
 
       <NextUpCard all={s.soundPath ?? {}} onPlay={playPath} disabled={!engine} />
 

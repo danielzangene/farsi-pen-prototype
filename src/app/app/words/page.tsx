@@ -57,7 +57,7 @@ export default function WordsPage() {
 
   return (
     <div>
-      <PageHeader title="Words" subtitle={`${WORDS.length} words and phrases`}>
+      <PageHeader back={{ href: "/app/path/", label: "Journey" }} title="Words" subtitle={`${WORDS.length} words and phrases`}>
         <Segmented
           label="View"
           value={tab}

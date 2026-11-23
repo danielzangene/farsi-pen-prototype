@@ -30,10 +30,10 @@ const PROFILE = 4;
 
 /** Every other page, grouped under the tab it belongs to (shown in the sidebar on desktop). */
 const SECONDARY: NavItem[] = [
-  { href: "/app/words/", label: "Words", icon: Layers, tone: "sky", parent: HOME },
-  { href: "/app/speak/", label: "Speak", icon: Mic, tone: "plum", parent: HOME },
+  { href: "/app/words/", label: "Words", icon: Layers, tone: "firuze", parent: PATH },
+  { href: "/app/speak/", label: "Speak", icon: Mic, tone: "plum", parent: PATH },
   { href: "/app/scenes/", label: "Scenes", icon: Clapperboard, tone: "saffron", parent: HOME },
-  { href: "/app/listen/", label: "Hands-free", icon: Headphones, tone: "pista", parent: HOME },
+  { href: "/app/listen/", label: "Hands-free", icon: Headphones, tone: "pista", parent: PATH },
   { href: "/app/practice/", label: "Daily Practice", icon: Repeat, tone: "firuze", parent: HOME },
   ...(hasBackend ? [{ href: "/app/tutor/", label: "AI tutor", icon: MessagesSquare, tone: "pista" as const, parent: HOME }] : []),
   { href: "/app/sounds/", label: "Sounds", icon: AudioLines, tone: "sky", parent: PATH },

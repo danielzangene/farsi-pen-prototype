@@ -31,7 +31,7 @@ export default function LessonsPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <PageHeader title="Lessons" subtitle={`${done} of ${LESSONS.length} lessons complete`} />
+      <PageHeader back={{ href: "/app/path/", label: "Journey" }} title="Lessons" subtitle={`${done} of ${LESSONS.length} lessons complete`} />
       <div className="space-y-4">
         {LEVELS.map((level) => {
           const unit = LESSONS.filter((l) => l.level === level.id);

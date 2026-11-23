@@ -6,6 +6,7 @@ import { buildPath, nextOnPath, sectionProgress, type PathItem } from "@/lib/pat
 import { useHydrated, useProgress } from "@/lib/store";
 import { cx } from "@/lib/util";
 import { Fa, PageHeader, ProgressBar, TONE, type Tone } from "@/components/ui";
+import { LearnAndPractise } from "@/components/journey/LearnAndPractise";
 
 const TONES: Tone[] = ["firuze", "saffron", "sky", "pista", "plum", "anar", "firuze"];
 const KIND_LABEL: Record<PathItem["kind"], string> = { alphabet: "Letters", sounds: "Sounds", lesson: "Lesson", mission: "Mission", grammar: "Grammar", scenes: "Scenes", reading: "Reading" };
@@ -42,7 +43,7 @@ export default function PathPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <PageHeader title="Journey" subtitle="The whole course in order, from the first letter to reading real Persian." />
+      <PageHeader title="Journey" subtitle="The whole course in order, and every way to learn and practise it." />
 
       {next ? (
         <section aria-labelledby="next-heading" className={cx("rounded-[1.25rem] p-5 sm:p-6", TONE[TONES[(next.section.number - 1) % TONES.length]].soft)}>
@@ -158,6 +159,8 @@ export default function PathPage() {
           );
         })}
       </ol>
+
+      <LearnAndPractise />
     </div>
   );
 }
