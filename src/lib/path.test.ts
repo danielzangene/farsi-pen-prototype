@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { GRAMMAR } from "@/content/grammar";
 import { LESSONS } from "@/content/lessons";
 import { MISSIONS } from "@/content/missions";
 import { READINGS } from "@/content/readings";
@@ -8,8 +9,9 @@ import { DEFAULT_STATE } from "./store";
 describe("path", () => {
   const path = buildPath(DEFAULT_STATE);
   const items = path.flatMap((s) => s.items);
-  it("covers every lesson, mission and reading exactly once", () => {
+  it("covers every lesson, mission, reading and grammar concept exactly once", () => {
     for (const l of LESSONS) expect(items.filter((i) => i.id === `lesson-${l.id}`)).toHaveLength(1);
+    for (const g of GRAMMAR) expect(items.filter((i) => i.id === `grammar-${g.id}`)).toHaveLength(1);
     for (const m of MISSIONS) expect(items.filter((i) => i.id === `mission-${m.id}`)).toHaveLength(1);
     for (const r of READINGS) expect(items.filter((i) => i.id === `reading-${r.id}`)).toHaveLength(1);
   });

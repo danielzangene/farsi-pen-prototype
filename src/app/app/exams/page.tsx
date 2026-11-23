@@ -59,7 +59,7 @@ export default function ExamsPage() {
 
       <ul className="card divide-y divide-line overflow-hidden !p-0">
         {[
-          { href: "/app/grammar/", title: "Grammar, A1 to B2", text: "Every concept the exams expect" },
+          { href: "/app/path/", title: "Grammar, A1 to B2", text: "Every concept the exams expect, step by step on Journey" },
           { href: "/app/reading/", title: "Reading lessons", text: "Written Persian with news vocabulary" },
           { href: "/app/practice/", title: "Daily practice", text: "Type words from memory" },
         ].map((x) => (

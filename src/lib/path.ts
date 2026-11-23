@@ -43,19 +43,21 @@ const MISSIONS_AFTER_LEVEL: Record<number, string[]> = { 1: ["meet", "cafe"], 2:
 // Grammar levels taught alongside each lesson level.
 const GRAMMAR_FOR_LEVEL: Record<number, "A1" | "A2" | undefined> = { 2: "A1", 4: "A2" };
 
-function grammarItem(s: ProgressState, level: "A1" | "A2" | "B1" | "B2"): PathItem {
-  const concepts = GRAMMAR.filter((g) => g.level === level);
-  const passed = concepts.filter((g) => s.grammar[g.id]?.passed).length;
-  return {
-    id: `grammar-${level}`,
-    kind: "grammar",
-    title: `${level} grammar`,
-    subtitle: `${passed}/${concepts.length} concepts`,
-    href: `/app/grammar/?level=${level}`,
-    badge: "🧩",
-    progress: concepts.length ? passed / concepts.length : 0,
-    done: passed === concepts.length && concepts.length > 0,
-  };
+/** One step per grammar concept of a level, in the order the units teach them. */
+function grammarItems(s: ProgressState, level: "A1" | "A2" | "B1" | "B2"): PathItem[] {
+  return GRAMMAR.filter((g) => g.level === level).map((g) => {
+    const rec = s.grammar[g.id];
+    return {
+      id: `grammar-${g.id}`,
+      kind: "grammar" as const,
+      title: g.title,
+      subtitle: rec?.passed ? `Done · best ${rec.best}%` : g.summary,
+      href: `/app/grammar/${g.id}/`,
+      badge: "🧩",
+      progress: rec?.passed ? 1 : 0,
+      done: !!rec?.passed,
+    };
+  });
 }
 
 export function buildPath(s: ProgressState, now = new Date()): PathSection[] {
@@ -115,7 +117,7 @@ export function buildPath(s: ProgressState, now = new Date()): PathSection[] {
       items.push({ id: "scenes", kind: "scenes", title: "Scenes with the family", subtitle: `${played}/${SCENES.length} episodes`, href: "/app/scenes/", badge: "🎬", progress: played / SCENES.length, done: played === SCENES.length });
     }
     const g = GRAMMAR_FOR_LEVEL[level.id];
-    if (g) items.push(grammarItem(s, g));
+    if (g) items.push(...grammarItems(s, g));
     sections.push({ id: `level-${level.id}`, number: sections.length + 1, title: level.name.replace(/^Level \d+ · /, ""), fa: level.nameFa, cefr: level.cefr, description: level.description, items });
   }
 
@@ -138,7 +140,7 @@ export function buildPath(s: ProgressState, now = new Date()): PathSection[] {
         progress: s.readings?.[r.id] ? 1 : 0,
         done: !!s.readings?.[r.id],
       })),
-      grammarItem(s, "B1"),
+      ...grammarItems(s, "B1"),
     ],
   });
   sections.push({
@@ -148,7 +150,7 @@ export function buildPath(s: ProgressState, now = new Date()): PathSection[] {
     fa: "مسلط",
     cefr: "B2",
     description: "Linking ideas, building words, register and politeness — and the classics.",
-    items: [grammarItem(s, "B2"), { id: "poetry", kind: "reading", title: "Poetry", subtitle: "Hafez, Saadi and Khayyam", href: "/app/poetry/", badge: "🌹", progress: 0, done: false }],
+    items: [...grammarItems(s, "B2"), { id: "poetry", kind: "reading", title: "Poetry", subtitle: "Hafez, Saadi and Khayyam", href: "/app/poetry/", badge: "🌹", progress: 0, done: false }],
   });
   return sections;
 }

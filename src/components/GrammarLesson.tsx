@@ -58,8 +58,8 @@ export function GrammarLesson({ concept }: { concept: GrammarConcept }) {
           >
             Review & try again
           </button>
-          <Link href="/app/grammar/" className="btn-primary btn-lg">
-            Back to grammar
+          <Link href="/app/path/" className="btn-primary btn-lg">
+            Back to Journey
           </Link>
         </div>
       </div>
@@ -68,8 +68,8 @@ export function GrammarLesson({ concept }: { concept: GrammarConcept }) {
 
   return (
     <article className="mx-auto max-w-2xl">
-      <Link href="/app/grammar/" className="btn-ghost btn-sm -ml-3 mb-4">
-        <ArrowLeft className="size-4" strokeWidth={3} /> Grammar
+      <Link href="/app/path/" className="btn-ghost btn-sm -ml-3 mb-4">
+        <ArrowLeft className="size-4" strokeWidth={3} /> Journey
       </Link>
 
       <p className="eyebrow text-plum-ink">
@@ -136,6 +136,7 @@ export function GrammarLesson({ concept }: { concept: GrammarConcept }) {
           Start exercises ({concept.exercises.length})
         </button>
       </div>
+      <p className="mt-8 text-center text-sm font-semibold text-muted">All explanations are drafts awaiting review by a native-speaker teacher.</p>
     </article>
   );
 }
@@ -230,7 +231,7 @@ function Exercises({ exercises, onDone }: { exercises: Exercise[]; onDone: (corr
   return (
     <div className="mx-auto max-w-3xl">
       <SessionHeader
-        exitHref="/app/grammar/"
+        exitHref="/app/path/"
         progress={done / exercises.length}
         right={
           <span className="text-sm font-extrabold tabular-nums text-muted">

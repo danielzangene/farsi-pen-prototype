@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, LayoutGrid, AudioLines, Bookmark, BookHeart, BookOpenText, ChartColumn, ChevronRight, CircleUserRound, Clapperboard, Compass, Flame, GraduationCap, Headphones, House, MessagesSquare, Mic, PenLine, Puzzle, Repeat, Route, Star } from "lucide-react";
+import { X, LayoutGrid, AudioLines, Bookmark, BookHeart, BookOpenText, ChartColumn, ChevronRight, CircleUserRound, Clapperboard, Compass, Flame, GraduationCap, Headphones, House, MessagesSquare, Mic, PenLine, Repeat, Route, Star } from "lucide-react";
 import { hasBackend } from "@/lib/backend";
 import { currentStreak, useProgress } from "@/lib/store";
 import { cx, IS_DEV_SITE } from "@/lib/util";
@@ -22,7 +22,7 @@ const PRIMARY: NavItem[] = [
   { href: "/app/settings/", label: "Profile", icon: CircleUserRound, tone: "pista" },
 ];
 /** Pages with no menu entry of their own that count as part of another page (lessons are opened from Journey). */
-const ALSO_UNDER: Record<string, string[]> = { "/app/path/": ["/app/lessons/"], "/app/bookmarks/": ["/app/words/"] };
+const ALSO_UNDER: Record<string, string[]> = { "/app/path/": ["/app/lessons/", "/app/grammar/"], "/app/bookmarks/": ["/app/words/"] };
 
 const HOME = 0;
 const PATH = 1;
@@ -39,7 +39,6 @@ const SECONDARY: NavItem[] = [
   ...(hasBackend ? [{ href: "/app/tutor/", label: "AI tutor", icon: MessagesSquare, tone: "pista" as const, parent: HOME }] : []),
   { href: "/app/sounds/", label: "Sounds", icon: AudioLines, tone: "sky", parent: PATH },
   { href: "/app/missions/", label: "Missions", icon: Compass, tone: "firuze", parent: PATH },
-  { href: "/app/grammar/", label: "Grammar", icon: Puzzle, tone: "plum", parent: PATH },
   { href: "/app/reading/", label: "Reading", icon: BookOpenText, tone: "sky", parent: PATH },
   { href: "/app/alphabet/", label: "Alphabet", icon: PenLine, tone: "pista", parent: PATH },
   { href: "/app/poetry/", label: "Poetry", icon: BookHeart, tone: "plum", parent: PATH },
@@ -225,7 +224,7 @@ const ProfileContent = dynamic(() => import("@/components/ProfileContent"), {
  * My cards (which holds Words), SAMFA and Placement are reached from their tabs instead.
  */
 const MENU_GROUPS: { title: string; items: NavItem[] }[] = [
-  { title: "Learn", hrefs: ["/app/path/", "/app/grammar/", "/app/alphabet/", "/app/sounds/"] },
+  { title: "Learn", hrefs: ["/app/path/", "/app/alphabet/", "/app/sounds/"] },
   { title: "Practise", hrefs: ["/app/practice/", "/app/speak/", "/app/listen/"] },
   { title: "Adventures", hrefs: ["/app/missions/", "/app/scenes/", "/app/reading/", "/app/poetry/", "/app/tutor/"] },
 ].map((g) => ({ title: g.title, items: g.hrefs.flatMap((h) => [...PRIMARY, ...SECONDARY].filter((l) => l.href === h)) }));
