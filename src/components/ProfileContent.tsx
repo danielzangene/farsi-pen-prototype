@@ -1,11 +1,11 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { Bookmark, ChartColumn, ClipboardCheck, ChevronRight, Info, ShieldCheck } from "lucide-react";
+import { Bookmark, ChartColumn, ClipboardCheck, Info, ShieldCheck } from "lucide-react";
 import { levelFor } from "@/lib/gamification";
 import { currentStreak, NAME_MAX_LENGTH, resetProgress, updateSettings, useProgress } from "@/lib/store";
 import { CardControls } from "@/components/CardControls";
-import { Segmented } from "@/components/ui";
+import { LinkRows, Segmented } from "@/components/ui";
 import { RecognitionSetup, VoiceSetup } from "@/components/SpeechSetup";
 import { ProgressTools } from "@/components/ProgressTools";
 import { SyncCard } from "@/components/SyncCard";
@@ -36,25 +36,14 @@ export default function ProfileContent() {
         </div>
       </section>
 
-      <ul className="card divide-y divide-line overflow-hidden !p-0">
-        {[
+      <LinkRows
+        items={[
           { href: "/app/bookmarks/", title: "My cards", text: `${s.bookmarks.length} saved`, icon: Bookmark },
           { href: "/app/progress/", title: "Progress", text: "Calendar, charts and badges", icon: ChartColumn },
           { href: "/app/privacy/", title: "Privacy", text: "What's stored and where", icon: ShieldCheck },
           { href: "/app/review/", title: "Check the content", text: "For native speakers: review and record", icon: ClipboardCheck },
-        ].map((x) => (
-          <li key={x.href}>
-            <Link href={x.href} className="flex min-h-[3.75rem] items-center gap-3 px-4 py-2.5 hover:bg-paper active:bg-paper">
-              <x.icon className="size-5 shrink-0 text-muted" strokeWidth={2} />
-              <span className="min-w-0 flex-1">
-                <span className="block font-semibold">{x.title}</span>
-                <span className="block text-sm text-muted">{x.text}</span>
-              </span>
-              <ChevronRight className="size-4 text-faint" />
-            </Link>
-          </li>
-        ))}
-      </ul>
+        ]}
+      />
 
       {/* Signed-in learners get their name and photo from Google (Supabase profile); only builds without sign-in ask for a name. */}
       {!AUTH_ENABLED && (

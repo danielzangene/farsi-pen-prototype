@@ -2,8 +2,17 @@
 import { useEffect, useRef, useState } from "react";
 import { BellOff, BellRing, CalendarPlus, CheckCircle2, Download, Upload } from "lucide-react";
 import { reminderIcs } from "@/lib/reminder";
-import { importProgress, updateSettings, useProgress } from "@/lib/store";
-import { downloadBackup } from "./TodayPlan";
+import { dayKey } from "@/lib/gamification";
+import { exportProgress, importProgress, updateSettings, useProgress } from "@/lib/store";
+
+function downloadBackup() {
+  const blob = new Blob([exportProgress()], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `farsi-pen-progress-${dayKey()}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
 
 /** Settings: back up / restore progress and a daily reminder. */
 export function ProgressTools() {

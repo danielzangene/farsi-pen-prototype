@@ -20,7 +20,7 @@ npx wrangler secret put NVIDIA_API_KEY     # key from build.nvidia.com
 npx wrangler deploy
 ```
 
-Then set the repository variable `NEXT_PUBLIC_API_URL` (e.g. `https://farsi-pen-api.<you>.workers.dev`) for the Pages build.
+Then set `NEXT_PUBLIC_API_URL` (e.g. `https://farsi-pen-api.<you>.workers.dev`) in the Vercel project's environment variables and redeploy.
 
 ## Read feedback
 

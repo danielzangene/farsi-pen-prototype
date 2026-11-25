@@ -4,7 +4,7 @@
 // farsi-pen-design-system skill for when to use which.
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Bookmark, CheckCircle2, ChevronLeft, Snail, Volume2, X, XCircle } from "lucide-react";
+import { Bookmark, CheckCircle2, ChevronLeft, ChevronRight, Snail, Volume2, X, XCircle } from "lucide-react";
 import type { Word } from "@/content/words";
 import { canSpeak, onVoicesChanged, speak } from "@/lib/speech";
 import { toggleBookmark, useProgress, type Settings } from "@/lib/store";
@@ -313,6 +313,49 @@ export function FeedbackSheet({
 }
 
 /** Result tile: a small label over a large value, tinted by tone. */
+export type LinkTile = { href: string; title: string; text: string; icon: React.ComponentType<{ className?: string; strokeWidth?: number }>; tone: Tone };
+
+/** A grid of section tiles: tinted icon, title and one live line each (Home's Adventures, Journey's Practise). */
+export function LinkTiles({ items }: { items: LinkTile[] }) {
+  return (
+    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      {items.map((t) => (
+        <li key={t.href}>
+          <Link href={t.href} className="tile flex h-full flex-col gap-3 p-4">
+            <span className={cx("grid size-10 place-items-center rounded-xl text-on-accent", TONE[t.tone].bg)} aria-hidden>
+              <t.icon className="size-5" strokeWidth={2.2} />
+            </span>
+            <span>
+              <span className="block font-semibold leading-tight">{t.title}</span>
+              <span className="mt-0.5 block text-sm text-muted">{t.text}</span>
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** A grouped list of navigation rows: optional icon, title, one muted line and a chevron (Profile, Exams). */
+export function LinkRows({ items }: { items: { href: string; title: string; text: string; icon?: React.ComponentType<{ className?: string; strokeWidth?: number }> }[] }) {
+  return (
+    <ul className="card divide-y divide-line overflow-hidden !p-0">
+      {items.map((x) => (
+        <li key={x.href}>
+          <Link href={x.href} className="flex min-h-[3.75rem] items-center gap-3 px-4 py-2.5 hover:bg-paper active:bg-paper">
+            {x.icon && <x.icon className="size-5 shrink-0 text-muted" strokeWidth={2} />}
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold">{x.title}</span>
+              <span className="block text-sm text-muted">{x.text}</span>
+            </span>
+            <ChevronRight className="size-4 text-faint" />
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function StatCard({ label, value, tone = "saffron", icon }: { label: string; value: React.ReactNode; tone?: Tone; icon?: React.ReactNode }) {
   return (
     <div className="card animate-pop px-3 py-3.5 text-center">

@@ -1,9 +1,8 @@
 "use client";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 import { SAMFA_FACTS } from "@/content/samfa";
 import { useHydrated, useProgress } from "@/lib/store";
-import { Fa, PageHeader, ProgressBar } from "@/components/ui";
+import { Fa, LinkRows, PageHeader, ProgressBar } from "@/components/ui";
 import { LEVEL_NAME } from "@/lib/placement";
 
 
@@ -57,22 +56,12 @@ export default function ExamsPage() {
         </div>
       </section>
 
-      <ul className="card divide-y divide-line overflow-hidden !p-0">
-        {[
+      <LinkRows
+        items={[
           { href: "/app/path/", title: "Grammar, A1 to B2", text: "Every concept the exams expect, step by step on Journey" },
           { href: "/app/reading/", title: "Reading lessons", text: "Written Persian with news vocabulary" },
-        ].map((x) => (
-          <li key={x.href}>
-            <Link href={x.href} className="flex min-h-[3.75rem] items-center gap-3 px-4 py-2.5 hover:bg-paper active:bg-paper">
-              <span className="min-w-0 flex-1">
-                <span className="block font-semibold">{x.title}</span>
-                <span className="block text-sm text-muted">{x.text}</span>
-              </span>
-              <ChevronRight className="size-4 text-faint" />
-            </Link>
-          </li>
-        ))}
-      </ul>
+        ]}
+      />
     </div>
   );
 }

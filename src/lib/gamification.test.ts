@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { extendStreak, levelFor, liveStreak, previousDay } from "./gamification";
-import { newCard, pickPractice, review, Rating } from "./srs";
 
 describe("levels", () => {
   it("starts at level 1 and moves up at thresholds", () => {
@@ -33,18 +32,5 @@ describe("streaks", () => {
     const s = { current: 4, record: 4, lastDay: "2026-10-28" };
     expect(liveStreak(s, "2026-10-29")).toBe(4);
     expect(liveStreak(s, "2026-10-30")).toBe(0);
-  });
-});
-
-describe("practice queue", () => {
-  it("puts due cards first and caps the session", () => {
-    const now = new Date("2026-10-30T12:00:00Z");
-    const cards = {
-      fresh: review(newCard(now), Rating.Good, now), // due later
-      due: { ...newCard(now), due: "2026-10-29T00:00:00Z" },
-      hidden: { ...newCard(now), due: "2026-10-01T00:00:00Z" },
-    };
-    expect(pickPractice(cards, new Set(["hidden"]), 10, now)).toEqual(["due", "fresh"]);
-    expect(pickPractice(cards, new Set(), 1, now)).toEqual(["hidden"]);
   });
 });

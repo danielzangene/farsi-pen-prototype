@@ -2,14 +2,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Check, ChevronDown, ChevronRight, Headphones, Mic } from "lucide-react";
-import { buildPath, nextOnPath, sectionProgress, type PathItem } from "@/lib/path";
+import { buildPath, KIND_LABEL, nextOnPath, sectionProgress } from "@/lib/path";
 import { useHydrated, useProgress } from "@/lib/store";
 import { cx } from "@/lib/util";
 import { Fa, PageHeader, ProgressBar, TONE, type Tone } from "@/components/ui";
-import { LearnAndPractise } from "@/components/journey/LearnAndPractise";
+import { Practise } from "@/components/journey/Practise";
 
 const TONES: Tone[] = ["firuze", "saffron", "sky", "pista", "plum", "anar", "firuze"];
-const KIND_LABEL: Record<PathItem["kind"], string> = { alphabet: "Letters", sounds: "Sounds", lesson: "Lesson", mission: "Mission", grammar: "Grammar", scenes: "Scenes", reading: "Reading" };
 
 function Badge({ text, tone, done }: { text: string; tone: Tone; done?: boolean }) {
   const emoji = /\p{Extended_Pictographic}/u.test(text);
@@ -192,7 +191,7 @@ export default function PathPage() {
         </p>
       </section>
 
-      <LearnAndPractise />
+      <Practise />
     </div>
   );
 }

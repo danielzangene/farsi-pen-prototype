@@ -10,10 +10,14 @@ import { MISSION_BY_ID } from "@/content/missions";
 import { READINGS } from "@/content/readings";
 import { SCENES } from "@/content/scenes";
 import { displayState } from "./mastery";
+import { levelRank } from "./placement";
 import { PATH_UNITS, stageCount, stagesDone } from "./sound-path";
 import type { ProgressState } from "./store";
 
 export type PathItemKind = "alphabet" | "sounds" | "lesson" | "mission" | "grammar" | "scenes" | "reading";
+
+/** What each kind of step is called on Journey and Home. */
+export const KIND_LABEL: Record<PathItemKind, string> = { alphabet: "Letters", sounds: "Sounds", lesson: "Lesson", mission: "Mission", grammar: "Grammar", scenes: "Scenes", reading: "Reading" };
 
 export interface PathItem {
   id: string;
@@ -158,16 +162,14 @@ export function buildPath(s: ProgressState, now = new Date()): PathSection[] {
   return sections;
 }
 
-const RANK: Record<string, number> = { Start: 0, A1: 1, A2: 2, B1: 3, B2: 4 };
-
 /**
  * The first unfinished item. Readers skip the alphabet, and sections below
  * a placement result are optional, so "next" starts at the learner's level.
  */
 export function nextOnPath(sections: PathSection[], s?: Pick<ProgressState, "settings" | "placement">): { section: PathSection; item: PathItem } | null {
-  const floor = RANK[s?.placement?.level ?? "A0"] ?? 0;
+  const floor = levelRank(s?.placement?.level);
   for (const section of sections) {
-    if (RANK[section.cefr] < floor && section.cefr !== "Start") continue;
+    if (levelRank(section.cefr) < floor && section.cefr !== "Start") continue;
     for (const item of section.items) {
       if (item.done) continue;
       if (item.kind === "alphabet" && (s?.settings.reads === "yes" || floor >= 2)) continue;

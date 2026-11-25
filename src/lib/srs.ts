@@ -42,18 +42,3 @@ export function isDue(c: StoredCard, now = new Date()): boolean {
 export function isLearned(c: StoredCard): boolean {
   return c.state === State.Review;
 }
-
-/**
- * Daily Practice queue: due cards first (most overdue first), then the
- * weakest of the rest (lowest stability, most lapses), capped at `limit`.
- */
-export function pickPractice(cards: Record<string, StoredCard>, exclude: Set<string>, limit = 10, now = new Date()): string[] {
-  const entries = Object.entries(cards).filter(([id]) => !exclude.has(id));
-  const due = entries
-    .filter(([, c]) => isDue(c, now))
-    .sort(([, a], [, b]) => new Date(a.due).getTime() - new Date(b.due).getTime());
-  const rest = entries
-    .filter(([, c]) => !isDue(c, now))
-    .sort(([, a], [, b]) => a.stability - b.stability || b.lapses - a.lapses);
-  return [...due, ...rest].slice(0, limit).map(([id]) => id);
-}

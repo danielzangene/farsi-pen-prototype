@@ -602,21 +602,6 @@ export function recordSounds(scores: { sound: string; score: number }[]) {
   });
 }
 
-/** Collects a finished daily quest's bonus XP (once per quest per day). */
-export function claimQuest(id: string, xp: number): boolean {
-  let ok = false;
-  update((s) => {
-    const key = dayKey();
-    const day = s.daily[key] ?? { words: 0, xp: 0 };
-    if (day.quests?.includes(id)) return s;
-    ok = true;
-    const next = addActivity(s, 0, xp);
-    const d = next.daily[key];
-    return { ...next, daily: { ...next.daily, [key]: { ...d, quests: [...(d.quests ?? []), id] } } };
-  });
-  return ok;
-}
-
 /** Adds a dictionary word to My cards (and returns its id). */
 export function addCustomWord(w: Omit<CustomWord, "addedAt">): string {
   const id = `custom:${w.fa.replace(/\s+/g, "-")}`;
