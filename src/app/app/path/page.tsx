@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Check, ChevronDown, ChevronRight } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Headphones, Mic } from "lucide-react";
 import { buildPath, nextOnPath, sectionProgress, type PathItem } from "@/lib/path";
 import { useHydrated, useProgress } from "@/lib/store";
 import { cx } from "@/lib/util";
@@ -147,16 +147,31 @@ export default function PathPage() {
                               {it.done && <Check className="size-3.5" strokeWidth={3.5} />}
                             </span>
                           </span>
-                          <Link href={it.href} className="tile flex min-w-0 flex-1 items-center gap-3 p-3" data-state={isNext ? "current" : undefined}>
-                            <Badge text={it.badge} tone={tone} done={it.done} />
-                            <span className="min-w-0 flex-1">
-                              <span className="block text-xs font-semibold text-muted">{isNext ? "Up next" : KIND_LABEL[it.kind]}</span>
-                              <span className="block font-semibold leading-tight">{it.title}</span>
-                              <span className="block truncate text-sm text-muted">{it.subtitle}</span>
-                              {it.progress > 0 && it.progress < 1 && <ProgressBar value={it.progress} tone={tone} size="sm" className="mt-1.5" />}
-                            </span>
-                            <ChevronRight className="size-4 shrink-0 text-faint" />
-                          </Link>
+                          <div className="min-w-0 flex-1">
+                            <Link href={it.href} className="tile flex items-center gap-3 p-3" data-state={isNext ? "current" : undefined}>
+                              <Badge text={it.badge} tone={tone} done={it.done} />
+                              <span className="min-w-0 flex-1">
+                                <span className="block text-xs font-semibold text-muted">{isNext ? "Up next" : KIND_LABEL[it.kind]}</span>
+                                <span className="block font-semibold leading-tight">{it.title}</span>
+                                <span className="block truncate text-sm text-muted">{it.subtitle}</span>
+                                {it.progress > 0 && it.progress < 1 && <ProgressBar value={it.progress} tone={tone} size="sm" className="mt-1.5" />}
+                              </span>
+                              <ChevronRight className="size-4 shrink-0 text-faint" />
+                            </Link>
+                            {/* A finished lesson's words, out loud: siblings of the step link, never nested in it. */}
+                            {it.done && it.lessonId && (
+                              <div className="mt-1 flex gap-1">
+                                <Link href={`/app/speak/?lesson=${it.lessonId}`} className="btn-ghost btn-sm min-h-11" aria-label={`Speak the words of ${it.title}`}>
+                                  <Mic className="size-4" aria-hidden />
+                                  Speak
+                                </Link>
+                                <Link href={`/app/listen/?lesson=${it.lessonId}`} className="btn-ghost btn-sm min-h-11" aria-label={`Play ${it.title} hands-free`}>
+                                  <Headphones className="size-4" aria-hidden />
+                                  Hands-free
+                                </Link>
+                              </div>
+                            )}
+                          </div>
                         </li>
                       );
                     })}

@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, LayoutGrid, AudioLines, Bookmark, BookHeart, BookOpenText, ChartColumn, ChevronRight, CircleUserRound, Clapperboard, Compass, Flame, GraduationCap, Headphones, House, MessagesSquare, Mic, PenLine, Route, Star } from "lucide-react";
+import { X, LayoutGrid, Bookmark, BookHeart, BookOpenText, ChartColumn, ChevronRight, CircleUserRound, Clapperboard, Compass, Flame, GraduationCap, House, MessagesSquare, PenLine, Route, Star } from "lucide-react";
 import { hasBackend } from "@/lib/backend";
 import { currentStreak, useProgress } from "@/lib/store";
 import { cx, IS_DEV_SITE } from "@/lib/util";
@@ -21,8 +21,8 @@ const PRIMARY: NavItem[] = [
   { href: "/app/progress/", label: "Progress", icon: ChartColumn, tone: "sky" },
   { href: "/app/settings/", label: "Profile", icon: CircleUserRound, tone: "pista" },
 ];
-/** Pages with no menu entry of their own that count as part of another page (lessons are opened from Journey). */
-const ALSO_UNDER: Record<string, string[]> = { "/app/path/": ["/app/lessons/", "/app/grammar/"], "/app/bookmarks/": ["/app/words/"] };
+/** Pages with no menu entry of their own that count as part of another page (lessons, grammar, Sounds, Speak and Hands-free are opened from Journey). */
+const ALSO_UNDER: Record<string, string[]> = { "/app/path/": ["/app/lessons/", "/app/grammar/", "/app/sounds/", "/app/speak/", "/app/listen/"], "/app/bookmarks/": ["/app/words/"] };
 
 const HOME = 0;
 const PATH = 1;
@@ -32,11 +32,8 @@ const PROFILE = 4;
 
 /** Every other page, grouped under the tab it belongs to (shown in the sidebar on desktop). */
 const SECONDARY: NavItem[] = [
-  { href: "/app/speak/", label: "Speak", icon: Mic, tone: "plum", parent: PATH },
   { href: "/app/scenes/", label: "Scenes", icon: Clapperboard, tone: "saffron", parent: HOME },
-  { href: "/app/listen/", label: "Hands-free", icon: Headphones, tone: "pista", parent: PATH },
   ...(hasBackend ? [{ href: "/app/tutor/", label: "AI tutor", icon: MessagesSquare, tone: "pista" as const, parent: HOME }] : []),
-  { href: "/app/sounds/", label: "Sounds", icon: AudioLines, tone: "sky", parent: PATH },
   { href: "/app/missions/", label: "Missions", icon: Compass, tone: "firuze", parent: PATH },
   { href: "/app/reading/", label: "Reading", icon: BookOpenText, tone: "sky", parent: PATH },
   { href: "/app/alphabet/", label: "Alphabet", icon: PenLine, tone: "pista", parent: PATH },
@@ -219,12 +216,12 @@ const ProfileContent = dynamic(() => import("@/components/ProfileContent"), {
 
 /**
  * Groups in the Sections sheet (and the desktop sidebar), by what the learner wants to do:
- * learn something new, practise daily, or go on adventures with real Persian. Listed in display order.
- * My cards (which holds Words), SAMFA and Placement are reached from their tabs instead.
+ * learn something new, or go on adventures with real Persian. Listed in display order.
+ * Sounds, Speak and Hands-free live on Journey; My cards (which holds Words), SAMFA and
+ * Placement are reached from their tabs instead.
  */
 const MENU_GROUPS: { title: string; items: NavItem[] }[] = [
-  { title: "Learn", hrefs: ["/app/path/", "/app/alphabet/", "/app/sounds/"] },
-  { title: "Practise", hrefs: ["/app/speak/", "/app/listen/"] },
+  { title: "Learn", hrefs: ["/app/path/", "/app/alphabet/"] },
   { title: "Adventures", hrefs: ["/app/missions/", "/app/scenes/", "/app/reading/", "/app/poetry/", "/app/tutor/"] },
 ].map((g) => ({ title: g.title, items: g.hrefs.flatMap((h) => [...PRIMARY, ...SECONDARY].filter((l) => l.href === h)) }));
 

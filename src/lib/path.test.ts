@@ -15,6 +15,10 @@ describe("path", () => {
     for (const m of MISSIONS) expect(items.filter((i) => i.id === `mission-${m.id}`)).toHaveLength(1);
     for (const r of READINGS) expect(items.filter((i) => i.id === `reading-${r.id}`)).toHaveLength(1);
   });
+  it("tags every lesson step with its lesson, for Speak and Hands-free", () => {
+    for (const l of LESSONS) expect(items.find((i) => i.id === `lesson-${l.id}`)?.lessonId).toBe(l.id);
+    expect(items.filter((i) => i.kind !== "lesson" && i.lessonId)).toHaveLength(0);
+  });
   it("numbers sections in order and has unique ids", () => {
     path.forEach((s, i) => expect(s.number).toBe(i + 1));
     expect(new Set(items.map((i) => i.id)).size).toBe(items.length);

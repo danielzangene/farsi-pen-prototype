@@ -26,6 +26,8 @@ export interface PathItem {
   /** 0–1. */
   progress: number;
   done: boolean;
+  /** Lessons only: the lesson id, so Journey can offer Speak and Hands-free on its words. */
+  lessonId?: string;
 }
 
 export interface PathSection {
@@ -91,6 +93,7 @@ export function buildPath(s: ProgressState, now = new Date()): PathSection[] {
         badge: l.emoji,
         progress: rec?.completedAt ? 1 : 0,
         done: !!rec?.completedAt,
+        lessonId: l.id,
       };
     });
   // B1 vocabulary lives in the Independent section, next to the readings.

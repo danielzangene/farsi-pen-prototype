@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Headphones, Zap } from "lucide-react";
 import { LESSONS } from "@/content/lessons";
@@ -21,6 +21,11 @@ export default function ListenPage() {
   const [session, setSession] = useState(0);
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState<{ heard: number; xp: number } | null>(null);
+  useEffect(() => {
+    // Opened from a finished lesson on Journey: start with that lesson's words.
+    const lesson = new URLSearchParams(window.location.search).get("lesson");
+    if (lesson && LESSONS.some((l) => l.id === lesson)) setKey(sourceKey({ kind: "lesson", id: lesson }));
+  }, []);
   if (!hydrated) return null;
 
   const mine = Object.keys(s.cards).filter((id) => !s.hidden.includes(id) && WORD_BY_ID[id]).length;

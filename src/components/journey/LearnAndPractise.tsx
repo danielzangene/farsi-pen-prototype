@@ -1,25 +1,22 @@
 "use client";
 import Link from "next/link";
-import { AudioLines, Headphones, Layers, Mic } from "lucide-react";
+import { Headphones, Layers, Mic } from "lucide-react";
 import { buildDeck } from "@/lib/flashcards";
-import { journey } from "@/lib/progress";
 import { useProgress } from "@/lib/store";
 import { WORDS } from "@/content/words";
 import { cx } from "@/lib/util";
 import { TONE, type Tone } from "@/components/ui";
 
 /**
- * Below the path on Journey: every section for learning and practising, one tap away,
- * each with a live line saying what's waiting there. Icons and tones match the nav.
+ * Below the path on Journey: practice on the words you've collected, one tap away,
+ * each with a live line saying what's waiting there. Sounds is a step on the path
+ * itself, and each finished lesson offers Speak and Hands-free on its own words.
  */
 export function LearnAndPractise() {
   const s = useProgress();
-  const j = Object.fromEntries(journey(s).map((x) => [x.id, x]));
   const due = buildDeck("today", s).ids.length;
-  const count = (id: string, noun: string) => `${j[id].have} of ${j[id].total} ${noun}`;
 
   const tiles: { href: string; title: string; text: string; icon: typeof Mic; tone: Tone }[] = [
-    { href: "/app/sounds/", title: "Sounds", text: count("sounds", "stages"), icon: AudioLines, tone: "sky" },
     { href: "/app/bookmarks/", title: "My cards", text: due ? `${due} cards due today` : `${WORDS.length} words`, icon: Layers, tone: "firuze" },
     { href: "/app/speak/", title: "Speak", text: "Say it, see each sound", icon: Mic, tone: "plum" },
     { href: "/app/listen/", title: "Hands-free", text: "Hear it, say it, repeat", icon: Headphones, tone: "pista" },
@@ -28,14 +25,14 @@ export function LearnAndPractise() {
   return (
     <section aria-labelledby="learn-heading">
       <h2 id="learn-heading" className="text-xl font-extrabold">
-        Learn &amp; practise
+        Practise
       </h2>
-      <p className="mb-3 mt-0.5 text-sm text-muted">Every part of the course on its own, whenever you want it.</p>
-      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <p className="mb-3 mt-0.5 text-sm text-muted">Your words, on cards, out loud or on the go.</p>
+      <ul className="grid gap-3 sm:grid-cols-3">
         {tiles.map((t) => (
           <li key={t.href}>
-            <Link href={t.href} className="tile flex h-full flex-col gap-3 p-4">
-              <span className={cx("grid size-10 place-items-center rounded-xl text-on-accent", TONE[t.tone].bg)}>
+            <Link href={t.href} className="tile flex h-full items-center gap-3 p-4 sm:flex-col sm:items-start">
+              <span className={cx("grid size-10 shrink-0 place-items-center rounded-xl text-on-accent", TONE[t.tone].bg)}>
                 <t.icon className="size-5" strokeWidth={2.2} aria-hidden />
               </span>
               <span>
