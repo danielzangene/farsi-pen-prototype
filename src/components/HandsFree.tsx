@@ -211,8 +211,7 @@ export function HandsFree({
       stopAll();
       void keepAwake(false);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // Mount and unmount only: the session plays once per key.
 
   // Headphone and lock-screen controls.
   useEffect(() => {

@@ -1,13 +1,13 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, ExternalLink, Info, Languages, Volume2, XCircle } from "lucide-react";
+import { ExternalLink, Info, Languages, Volume2 } from "lucide-react";
 import type { Line, Mission } from "@/content/missions";
 import { GRAMMAR_BY_ID } from "@/content/grammar";
 import { speak } from "@/lib/speech";
 import { useProgress } from "@/lib/store";
 import { cx } from "@/lib/util";
-import { AudioButtons, Fa, FeedbackSheet, RegisterTag } from "../ui";
+import { AnswerOption, AudioButtons, Fa, FeedbackSheet, RegisterTag } from "../ui";
 import { ReportButton } from "../ReportButton";
 
 function StepTitle({ eyebrow, title, children }: { eyebrow: string; title: string; children?: React.ReactNode }) {
@@ -92,18 +92,9 @@ export function ListenStep({ mission, onNext }: { mission: Mission; onNext: () =
                 const chosen = picked[i];
                 const state = chosen ? (o === q.answer ? "correct" : o === chosen ? "wrong" : undefined) : undefined;
                 return (
-                  <button
-                    key={o}
-                    type="button"
-                    className="tile flex items-center justify-between gap-2 p-3 text-left font-bold"
-                    data-state={state}
-                    disabled={!!chosen}
-                    onClick={() => setPicked((p) => ({ ...p, [i]: o }))}
-                  >
+                  <AnswerOption key={o} state={state} disabled={!!chosen} onClick={() => setPicked((p) => ({ ...p, [i]: o }))}>
                     {o}
-                    {state === "correct" && <CheckCircle2 className="size-5 shrink-0 text-pista-ink" aria-label="Correct" />}
-                    {state === "wrong" && <XCircle className="size-5 shrink-0 text-anar-ink" aria-label="Wrong" />}
-                  </button>
+                  </AnswerOption>
                 );
               })}
             </div>

@@ -15,7 +15,7 @@ const READS: { value: Reads; label: string; hint: string }[] = [
   { value: "yes", label: "Yes", hint: "Show me Persian script first" },
 ];
 
-/** Two questions that shape the Today plan, asked once on the Welcome step after sign-up. Skippable. */
+/** Two questions asked once on the Welcome step after sign-up; the second sets the script and where Journey starts. Skippable. */
 export function Onboarding() {
   const [goal, setGoal] = useState<Goal | null>(null);
   const [step, setStep] = useState<1 | 2>(1);

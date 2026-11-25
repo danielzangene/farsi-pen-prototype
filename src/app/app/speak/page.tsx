@@ -8,6 +8,7 @@ import { completeSpeaking, useHydrated, useProgress, type SessionSummary } from 
 import { resolveEngine } from "@/lib/stt";
 import { shuffle } from "@/lib/util";
 import { SpeakRound } from "@/components/SpeakRound";
+import { NoSpeechNotice } from "@/components/SpeechSetup";
 import { StatCard, BackLink } from "@/components/ui";
 
 const SESSION = 8;
@@ -97,13 +98,7 @@ export default function SpeakPage() {
           Start
         </button>
         {!engine && (
-          <p className="mt-3 max-w-sm text-sm font-bold text-anar-ink">
-            This browser can&apos;t listen to speech. Try Chrome, Edge or Safari, or pick another engine in{" "}
-            <Link href="/app/settings/" className="underline">
-              Settings
-            </Link>
-            .
-          </p>
+          <NoSpeechNotice className="max-w-sm" />
         )}
       </div>
 

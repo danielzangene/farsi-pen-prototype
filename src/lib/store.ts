@@ -1,7 +1,8 @@
 "use client";
-// Guest-mode progress store (spec §4.1: "guest mode with local progress").
-// Everything lives in localStorage under one key; when accounts arrive this
-// object is what gets merged into Supabase on sign-up.
+// Progress store. Everything lives in localStorage under one key and stays on
+// this device; only Settings follow a signed-in learner (profile-sync.ts).
+// Fields marked "retired" are no longer read but stay, so saved progress,
+// backup files and older copies of the app keep the same shape.
 
 import { useSyncExternalStore } from "react";
 import { LESSONS } from "@/content/lessons";
@@ -33,6 +34,7 @@ export interface Settings {
   /** Hide transliteration entirely (reading practice). */
   scriptOnly: boolean;
   showKeyboard: boolean;
+  /** Retired: the Home "Getting started" checklist is gone (still synced as profiles.checklist_hidden). */
   checklistHidden: boolean;
   /** Dark by default; "system" follows the device setting. */
   theme: Theme;
@@ -44,7 +46,7 @@ export interface Settings {
   goal: Goal | null;
   reads: Reads | null;
   onboarded: boolean;
-  /** Last day (dayKey) we suggested backing up progress, so it's asked once. */
+  /** Retired: the backup suggestion is gone. */
   backupNudge: string | null;
   /** Daily reminder time ("HH:MM"), or null when off. */
   reminder: string | null;
@@ -54,7 +56,7 @@ export interface Settings {
 
 export type Goal = "travel" | "family" | "heritage" | "curious";
 export type Reads = "yes" | "some" | "no";
-/** Kinds of practice logged per day, for the Today plan. */
+/** Kinds of practice logged per day; any entry marks the day as practised. */
 export type ActivityKind = "review" | "lesson" | "mission" | "grammar" | "alphabet" | "speak" | "reading";
 
 export interface ProgressState {
@@ -68,6 +70,7 @@ export interface ProgressState {
   streak: Streak;
   grammar: Record<string, { best: number; passed: boolean }>;
   traced: Record<string, number>;
+  /** Retired: Daily Practice is gone. */
   practiceSessions: number;
   earnedBadges: string[];
   settings: Settings;
@@ -105,7 +108,7 @@ export interface DayRecord {
   xp: number;
   /** Takes spoken into the mic today. */
   spoken?: number;
-  /** Daily quests collected today. */
+  /** Retired: daily quests are gone. */
   quests?: string[];
 }
 

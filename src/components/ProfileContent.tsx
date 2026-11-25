@@ -132,22 +132,13 @@ export default function ProfileContent() {
             <span className="font-bold">Cards</span>
             <CardControls />
           </div>
-          <label className="flex cursor-pointer items-center justify-between gap-3 py-4 font-bold">
+          <label className="flex cursor-pointer items-center justify-between gap-3 pt-4 font-bold">
             On-screen Persian keyboard when typing in Farsi
             <input
               type="checkbox"
               className="size-5 shrink-0 cursor-pointer accent-firuze"
               checked={settings.showKeyboard}
               onChange={(e) => updateSettings({ showKeyboard: e.target.checked })}
-            />
-          </label>
-          <label className="flex cursor-pointer items-center justify-between gap-3 pt-4 font-bold">
-            Show “Getting started” checklist
-            <input
-              type="checkbox"
-              className="size-5 shrink-0 cursor-pointer accent-firuze"
-              checked={!settings.checklistHidden}
-              onChange={(e) => updateSettings({ checklistHidden: !e.target.checked })}
             />
           </label>
         </div>

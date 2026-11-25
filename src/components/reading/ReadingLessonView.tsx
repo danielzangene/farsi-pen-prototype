@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, Loader2, Mic, Pause, Play, Plus, Square, Volume2, X, XCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2, Mic, Pause, Play, Plus, Square, Volume2, X } from "lucide-react";
 import { GRAMMAR_BY_ID } from "@/content/grammar";
 import { readingGlossary, type FaItem, type ReadingLesson } from "@/content/readings";
 import { lookupPersian } from "@/lib/dictionary";
@@ -11,7 +11,7 @@ import { cleanFa } from "@/lib/spell";
 import { addCustomWord, completeReading, useProgress } from "@/lib/store";
 import { listen, loadWhisper, resolveEngine, SttError, whisperLoaded, type Listening } from "@/lib/stt";
 import { cx } from "@/lib/util";
-import { AudioButtons, Fa, SessionHeader, Segmented, StatCard } from "../ui";
+import { AnswerOption, AudioButtons, Fa, SessionHeader, Segmented, StatCard } from "../ui";
 
 const STEPS = ["Before you read", "Read", "Check", "Written and spoken", "Grammar in the text", "In the news", "Get to know Iran", "Your turn"] as const;
 
@@ -289,11 +289,9 @@ function CheckStep({ lesson, answers, onAnswer }: { lesson: ReadingLesson; answe
               {q.options.map((o) => {
                 const state = a === undefined ? undefined : o === q.answer ? "correct" : o === a ? "wrong" : undefined;
                 return (
-                  <button key={o} type="button" className="tile flex items-center justify-between p-3 text-start font-bold" data-state={state} disabled={a !== undefined} onClick={() => onAnswer(i, o)}>
+                  <AnswerOption key={o} state={state} disabled={a !== undefined} onClick={() => onAnswer(i, o)}>
                     {o}
-                    {state === "correct" && <CheckCircle2 className="size-5 shrink-0" />}
-                    {state === "wrong" && <XCircle className="size-5 shrink-0" />}
-                  </button>
+                  </AnswerOption>
                 );
               })}
             </div>

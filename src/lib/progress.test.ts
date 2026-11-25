@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { dayKey } from "./gamification";
-import { dayState, journey, monthGrid, soundTrends, xpByDay, xpByWeek } from "./progress";
+import { courseProgress, dayState, monthGrid, soundTrends, xpByDay, xpByWeek } from "./progress";
 import { DEFAULT_STATE } from "./store";
 
 const now = new Date(2026, 10, 9, 12); // Monday 9 Nov 2026
@@ -34,7 +34,7 @@ describe("progress", () => {
     expect(t.change).toBe(40);
   });
   it("summarises the course", () => {
-    const j = journey(DEFAULT_STATE);
+    const j = courseProgress(DEFAULT_STATE);
     expect(j.every((x) => x.have === 0 && x.total > 0)).toBe(true);
   });
 });

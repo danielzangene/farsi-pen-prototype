@@ -1,7 +1,7 @@
 // Placement test: up to four short rounds (A1, A2, B1, B2) of five
 // questions — word meanings, grammar from the course, and listening to a
 // recorded sentence. Four right moves you up a round; fewer ends the test.
-// The level found tells the Today plan which lessons and grammar to skip.
+// The level found tells Journey which sections to treat as done (nextOnPath).
 
 import { GRAMMAR } from "@/content/grammar";
 import { LESSONS } from "@/content/lessons";

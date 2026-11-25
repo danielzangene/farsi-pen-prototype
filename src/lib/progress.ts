@@ -10,7 +10,7 @@ import { HARD_SOUNDS } from "@/content/sounds";
 import { WORDS } from "@/content/words";
 import { dayKey } from "./gamification";
 import { displayState } from "./mastery";
-import { PATH_UNITS, stageCount, stagesDone } from "./sound-path";
+import { soundPathTotals } from "./sound-path";
 import { type ProgressState, wordsLearned } from "./store";
 
 export type DayState = "goal" | "practised" | "none";
@@ -78,15 +78,14 @@ export function soundTrends(s: Pick<ProgressState, "soundStats" | "soundHistory"
     .sort((a, b) => a.now - b.now);
 }
 
-/** The whole course at a glance. */
-export function journey(s: ProgressState) {
-  const pathStages = PATH_UNITS.reduce((n, u) => n + stageCount(u) + 1, 0);
-  const pathDone = PATH_UNITS.reduce((n, u) => n + stagesDone(u, s.soundPath?.[u.id]), 0);
+/** The whole course at a glance, area by area (Progress page). */
+export function courseProgress(s: ProgressState) {
+  const sounds = soundPathTotals(s.soundPath);
   const skills = MISSIONS.flatMap((m) => m.skills);
   return [
     { id: "words", label: "Words learned", have: wordsLearned(s), total: WORDS.length },
     { id: "lessons", label: "Lessons", have: LESSONS.filter((l) => s.lessons[l.id]?.completedAt).length, total: LESSONS.length },
-    { id: "sounds", label: "Sound stages", have: pathDone, total: pathStages },
+    { id: "sounds", label: "Sound stages", have: sounds.done, total: sounds.total },
     { id: "skills", label: "Mission skills mastered", have: skills.filter((k) => displayState(s.skills[k.id]) === "mastered").length, total: skills.length },
     { id: "grammar", label: "Grammar concepts", have: GRAMMAR.filter((g) => s.grammar[g.id]?.passed).length, total: GRAMMAR.length },
     { id: "reading", label: "Reading lessons", have: READINGS.filter((r) => s.readings?.[r.id]).length, total: READINGS.length },

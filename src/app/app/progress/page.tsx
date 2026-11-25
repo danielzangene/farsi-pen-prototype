@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Flame, Star, TrendingDown, TrendingUp, Zap } from "lucide-react";
 import { dayKey } from "@/lib/gamification";
-import { dayState, journey, monthGrid, soundTrends, xpByDay, xpByWeek, type Bar } from "@/lib/progress";
+import { courseProgress, dayState, monthGrid, soundTrends, xpByDay, xpByWeek, type Bar } from "@/lib/progress";
 import { currentStreak, useHydrated, useProgress } from "@/lib/store";
 import { cx } from "@/lib/util";
 import { Fa, PageHeader, ProgressBar, Segmented } from "@/components/ui";
@@ -27,7 +27,7 @@ export default function ProgressPage() {
       <StreakCalendar />
       <XpChart />
       <SoundsOverTime />
-      <Journey />
+      <CourseProgress />
       <BadgesCard />
     </div>
   );
@@ -254,13 +254,13 @@ function SoundsOverTime() {
   );
 }
 
-function Journey() {
+function CourseProgress() {
   const s = useProgress();
-  const rows = journey(s);
+  const rows = courseProgress(s);
   return (
-    <section className="card p-5" aria-labelledby="journey-heading">
-      <h2 id="journey-heading" className="text-xl font-extrabold">
-        Your journey
+    <section className="card p-5" aria-labelledby="course-heading">
+      <h2 id="course-heading" className="text-xl font-extrabold">
+        Across the course
       </h2>
       <ul className="mt-4 space-y-4">
         {rows.map((r) => (

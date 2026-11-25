@@ -37,8 +37,7 @@ export function Journey() {
   const [open, setOpen] = useState<string[]>([]);
   useEffect(() => {
     if (hydrated && next) setOpen([next.section.id]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated]);
+  }, [hydrated]); // Once, when progress loads: finishing a step mustn't fold the sections the learner opened.
   if (!hydrated) return null;
   const toggle = (id: string) => setOpen((o) => (o.includes(id) ? o.filter((x) => x !== id) : [...o, id]));
   const all = sections.flatMap((x) => x.items);

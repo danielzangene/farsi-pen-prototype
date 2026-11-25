@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Bookmark, Eye, EyeOff, Keyboard, RotateCcw, Target, ThumbsUp, Trophy, Zap } from "lucide-react";
 import { WORD_BY_ID } from "@/content/words";
-import { buildDeck, type Deck } from "@/lib/flashcards";
+import type { Deck } from "@/lib/flashcards";
 import { getWord } from "@/lib/words";
 import { completePractice, toggleHidden, useHydrated, useProgress, type SessionSummary } from "@/lib/store";
 import { cx, shuffle } from "@/lib/util";
@@ -41,17 +41,6 @@ export default function MyCardsPage() {
       localStorage.setItem(TAB_KEY, t);
     } catch {}
   };
-
-  // Opened from the Today plan (?start=today): go straight into today's deck.
-  useEffect(() => {
-    if (!hydrated) return;
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("start") !== "today") return;
-    window.history.replaceState(null, "", window.location.pathname);
-    const deck = buildDeck("today", s);
-    if (deck.ids.length) setSession({ deck, title: "Today", key: Date.now() });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated]);
 
   if (!hydrated) return null;
   if (session) return <FlashcardSession key={session.key} deck={session.deck} title={session.title} onExit={() => setSession(null)} />;

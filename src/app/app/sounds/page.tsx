@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import Link from "next/link";
 import { AudioLines, PartyPopper, Star, Target, X, Zap } from "lucide-react";
 import { HARD_SOUNDS, SOUND_BY_ID, SOUNDS, type Sound } from "@/content/sounds";
 import type { Word } from "@/content/words";
@@ -14,6 +13,7 @@ import { SoundTipCard } from "@/components/PronunciationFeedback";
 import { SayItButton } from "@/components/SayItButton";
 import { NextUpCard, SoundPathList, type PathPlay } from "@/components/SoundPath";
 import { SpeakRound } from "@/components/SpeakRound";
+import { NoSpeechNotice } from "@/components/SpeechSetup";
 import { AudioButtons, Fa, PageHeader, ProgressBar, StatCard } from "@/components/ui";
 
 const LEVEL = {
@@ -209,13 +209,7 @@ export default function SoundsPage() {
           Start workout
         </button>
         {!engine && (
-          <p className="mt-3 text-sm font-bold text-anar-ink">
-            This browser can&apos;t listen to speech. Try Chrome, Edge or Safari, or pick another engine in{" "}
-            <Link href="/app/settings/" className="underline">
-              Settings
-            </Link>
-            .
-          </p>
+          <NoSpeechNotice />
         )}
       </section>
 

@@ -118,6 +118,11 @@ export function stagesDone(u: PathUnit, rec?: SoundPathRecord): number {
   return Math.min(stageCount(u) + 1, rec?.stars?.length ?? 0);
 }
 
+/** Stages played and stages in all, across the whole sound path (each unit's review counts as a stage). */
+export function soundPathTotals(all?: Record<string, SoundPathRecord>): { done: number; total: number } {
+  return PATH_UNITS.reduce((t, u) => ({ done: t.done + stagesDone(u, all?.[u.id]), total: t.total + stageCount(u) + 1 }), { done: 0, total: 0 });
+}
+
 /** A unit opens once the one before it is done (or you test out of it). */
 export function unitOpen(index: number, all: Record<string, SoundPathRecord>): boolean {
   return index === 0 || unitDone(PATH_UNITS[index - 1], all[PATH_UNITS[index - 1].id]);

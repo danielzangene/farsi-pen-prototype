@@ -11,7 +11,7 @@ import { READINGS } from "@/content/readings";
 import { SCENES } from "@/content/scenes";
 import { displayState } from "./mastery";
 import { levelRank } from "./placement";
-import { PATH_UNITS, stageCount, stagesDone } from "./sound-path";
+import { soundPathTotals } from "./sound-path";
 import type { ProgressState } from "./store";
 
 export type PathItemKind = "alphabet" | "sounds" | "lesson" | "mission" | "grammar" | "scenes" | "reading";
@@ -68,8 +68,7 @@ function grammarItems(s: ProgressState, level: "A1" | "A2" | "B1" | "B2"): PathI
 
 export function buildPath(s: ProgressState, now = new Date()): PathSection[] {
   const traced = LETTERS.filter((l) => (s.traced[l.id] ?? 0) >= TRACE_PASS).length;
-  const stages = PATH_UNITS.reduce((n, u) => n + stageCount(u) + 1, 0);
-  const stagesPlayed = PATH_UNITS.reduce((n, u) => n + stagesDone(u, s.soundPath?.[u.id]), 0);
+  const { done: stagesPlayed, total: stages } = soundPathTotals(s.soundPath);
   const sections: PathSection[] = [
     {
       id: "foundations",

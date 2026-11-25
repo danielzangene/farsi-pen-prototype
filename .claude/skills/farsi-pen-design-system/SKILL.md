@@ -81,6 +81,7 @@ Borders are hairlines: use `border` (1px), not `border-2`. No `shadow-[0_Npx_0_�
 - `FeedbackSheet` — bottom action bar. Idle: material bar holding the main action. Answered: a sheet with rounded top corners, tinted pista/anar over the card colour, icon, title, detail and Continue.
 - `StatCard` — card with a small muted label over a large tinted value.
 - `LinkTiles` — grid of section tiles (tinted icon, title, one live line). `LinkRows` — grouped list of navigation rows with a chevron.
+- `AnswerOption` — a multiple-choice answer tile; shows correct / wrong with a labelled icon (never colour alone).
 - `Bubble`, `AudioButtons` (`big` for prompts), `BookmarkButton`, `RegisterTag`, `Segmented` (iOS segmented control), `PageHeader` (with an optional back link), `BackLink`, `TONE`.
 
 ## 7. Materials, depth and dialogs

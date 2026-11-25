@@ -356,6 +356,17 @@ export function LinkRows({ items }: { items: { href: string; title: string; text
   );
 }
 
+/** A multiple-choice answer: a tile that shows correct / wrong with a labelled icon, never colour alone. */
+export function AnswerOption({ state, disabled, onClick, children }: { state?: "selected" | "correct" | "wrong"; disabled?: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button type="button" className="tile flex items-center justify-between gap-2 p-3 text-start font-bold" data-state={state} disabled={disabled} onClick={onClick}>
+      {children}
+      {state === "correct" && <CheckCircle2 className="size-5 shrink-0" aria-label="Correct" />}
+      {state === "wrong" && <XCircle className="size-5 shrink-0" aria-label="Wrong" />}
+    </button>
+  );
+}
+
 export function StatCard({ label, value, tone = "saffron", icon }: { label: string; value: React.ReactNode; tone?: Tone; icon?: React.ReactNode }) {
   return (
     <div className="card animate-pop px-3 py-3.5 text-center">

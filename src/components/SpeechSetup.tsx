@@ -1,11 +1,25 @@
 "use client";
 import { useEffect, useState, useSyncExternalStore } from "react";
+import Link from "next/link";
 import { CheckCircle2, Download, Loader2, Trash2 } from "lucide-react";
 import { updateSettings, useProgress } from "@/lib/store";
 import { browserSttSupported, loadWhisper, micSupported, whisperLoaded, WHISPER_SIZE_MB, type EnginePref } from "@/lib/stt";
 import { downloadVoice, onVoiceStatus, PIPER_VOICES, refreshVoice, removeVoice, voiceStatus, type PiperVoiceId } from "@/lib/tts";
 import { speak } from "@/lib/speech";
 import { ProgressBar, Segmented } from "./ui";
+
+/** Shown under a speaking exercise's Start button when no recognition engine works in this browser. */
+export function NoSpeechNotice({ className }: { className?: string }) {
+  return (
+    <p className={`mt-3 text-sm font-bold text-anar-ink ${className ?? ""}`}>
+      This browser can&apos;t listen to speech. Try Chrome, Edge or Safari, or pick another engine in{" "}
+      <Link href="/app/settings/" className="underline">
+        Settings
+      </Link>
+      .
+    </p>
+  );
+}
 
 export function useVoiceStatus() {
   return useSyncExternalStore(onVoiceStatus, voiceStatus, voiceStatus);

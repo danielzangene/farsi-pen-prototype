@@ -14,13 +14,12 @@ export default function AlphabetPage() {
   const [filter, setFilter] = useState<"all" | "persian" | "extra">("all");
   const [selected, setSelected] = useState<Letter>(LETTERS[0]);
   const hydrated = useHydrated();
-  // Open on the next letter still to learn (where the Today plan points).
+  // Open on the next letter still to learn.
   useEffect(() => {
     if (!hydrated) return;
     const next = LETTERS.find((l) => (s.traced[l.id] ?? 0) < TRACE_PASS);
     if (next) setSelected(next);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated]);
+  }, [hydrated]); // Once, when progress loads: later tracing mustn't move the selection.
   const detailRef = useRef<HTMLDivElement>(null);
   const traced = LETTERS.filter((l) => (s.traced[l.id] ?? 0) >= TRACE_PASS).length;
   const shown = filter === "all" ? LETTERS : filter === "persian" ? LETTERS.filter((l) => l.persianOnly) : LETTERS.filter((l) => l.extra);
