@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Lightbulb, PartyPopper, RotateCcw, Star } from "lucide-react";
+import { ArrowLeft, Lightbulb, PartyPopper, RotateCcw } from "lucide-react";
 import type { Exercise, GrammarConcept } from "@/content/grammar";
 import { checkAnswer, type Verdict } from "@/lib/answer";
 import { completeGrammar } from "@/lib/store";
@@ -13,7 +13,7 @@ const PASS = 80;
 
 export function GrammarLesson({ concept }: { concept: GrammarConcept }) {
   const [mode, setMode] = useState<"learn" | "exercises" | "done">("learn");
-  const [result, setResult] = useState<{ correct: number; total: number; xp: number } | null>(null);
+  const [result, setResult] = useState<{ correct: number; total: number } | null>(null);
   const [attempt, setAttempt] = useState(0);
 
   if (mode === "exercises")
@@ -22,7 +22,8 @@ export function GrammarLesson({ concept }: { concept: GrammarConcept }) {
         key={attempt}
         exercises={concept.exercises}
         onDone={(correct, total) => {
-          setResult({ correct, total, xp: completeGrammar(concept.id, correct, total) });
+          completeGrammar(concept.id, correct, total);
+          setResult({ correct, total });
           setMode("done");
         }}
       />
@@ -43,8 +44,7 @@ export function GrammarLesson({ concept }: { concept: GrammarConcept }) {
         <p className="mt-2 font-semibold text-muted">
           {passed ? `${result.correct}/${result.total} right first time.` : `You need ${PASS}% to pass — you’re close. ${result.correct}/${result.total} right first time.`}
         </p>
-        <div className="mx-auto mt-6 grid max-w-xs grid-cols-2 gap-3">
-          <StatCard label="Total XP" tone="saffron" value={result.xp} icon={<Star className="size-5 fill-current" />} />
+        <div className="mx-auto mt-6 grid max-w-[10rem] grid-cols-1 gap-3">
           <StatCard label="Score" tone={passed ? "pista" : "anar"} value={`${pct}%`} />
         </div>
         <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-center">

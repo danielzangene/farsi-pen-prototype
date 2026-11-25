@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { AudioLines, PartyPopper, Star, Target, X, Zap } from "lucide-react";
+import { AudioLines, PartyPopper, Star, Target, X } from "lucide-react";
 import { HARD_SOUNDS, SOUND_BY_ID, SOUNDS, type Sound } from "@/content/sounds";
 import type { Word } from "@/content/words";
 import { buildWorkout, pickSounds, soundLevel, wordsForSound, type WorkoutItem } from "@/lib/sound-workout";
@@ -30,10 +30,10 @@ export default function SoundsPage() {
   const hydrated = useHydrated();
   const [session, setSession] = useState<Session | null>(null);
   const [round, setRound] = useState(0);
-  const [result, setResult] = useState<{ r: SessionSummary; xp: number } | null>(null);
+  const [result, setResult] = useState<SessionSummary | null>(null);
   const [open, setOpen] = useState<Sound | null>(null);
   const [path, setPath] = useState<(PathPlay & { words: Word[] }) | null>(null);
-  const [pathResult, setPathResult] = useState<{ xp: number; stars: number; correct: number; total: number; passed: boolean } | null>(null);
+  const [pathResult, setPathResult] = useState<{ stars: number; correct: number; total: number; passed: boolean } | null>(null);
 
   const stats = s.soundStats ?? {};
   const next = pickSounds(stats);
@@ -67,8 +67,8 @@ export default function SoundsPage() {
           onDone={(r) => {
             const stars = starsFor(r.correct, r.total);
             const passed = path.stage === "test" && passedTestOut(r.correct, r.total);
-            const xp = completeSoundStage(path.unit.id, path.stage, r.outcomes, stars, passed);
-            setPathResult({ xp, stars, correct: r.correct, total: r.total, passed });
+            completeSoundStage(path.unit.id, path.stage, r.outcomes, stars, passed);
+            setPathResult({ stars, correct: r.correct, total: r.total, passed });
           }}
         />
       </div>
@@ -98,7 +98,6 @@ export default function SoundsPage() {
             ))}
           </span>
         )}
-        <p className="mt-4 font-extrabold text-saffron-ink">+{pathResult.xp} XP</p>
         <div className="mt-8 flex w-full max-w-md flex-col gap-3">
           {nextStage !== null && nextStage <= n && (
             <button type="button" className="btn-primary btn-lg" onClick={() => playPath({ unit: path.unit, stage: nextStage })} autoFocus>
@@ -121,7 +120,10 @@ export default function SoundsPage() {
           words={session.items.map((x) => x.word)}
           focus={Object.fromEntries(session.items.map((x) => [x.word.id, x.sound]))}
           exitHref="/app/sounds/"
-          onDone={(r) => setResult({ r, xp: completeSpeaking(r) })}
+          onDone={(r) => {
+            completeSpeaking(r);
+            setResult(r);
+          }}
         />
       </div>
     );
@@ -134,10 +136,9 @@ export default function SoundsPage() {
         </span>
         <h1 className="mt-5 text-3xl font-extrabold text-saffron-ink sm:text-4xl">Workout done!</h1>
         <p className="mt-2 font-semibold text-muted">Little and often is how new sounds settle in.</p>
-        <div className="mt-6 grid w-full grid-cols-3 gap-3">
-          <StatCard label="Total XP" value={result.xp} tone="saffron" icon={<Zap className="size-5 fill-current" />} />
-          <StatCard label="Accuracy" value={`${Math.round((result.r.correct / result.r.total) * 100)}%`} tone="pista" icon={<Target className="size-5" />} />
-          <StatCard label="Words" value={result.r.total} tone="sky" icon={<AudioLines className="size-5" />} />
+        <div className="mt-6 grid w-full grid-cols-2 gap-3">
+          <StatCard label="Accuracy" value={`${Math.round((result.correct / result.total) * 100)}%`} tone="pista" icon={<Target className="size-5" />} />
+          <StatCard label="Words" value={result.total} tone="sky" icon={<AudioLines className="size-5" />} />
         </div>
         <ul className="mt-6 w-full space-y-3 text-start">
           {session.sounds.map((id) => {

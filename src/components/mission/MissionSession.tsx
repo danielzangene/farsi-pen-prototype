@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, CircleAlert, PartyPopper, RotateCcw, Star, Target } from "lucide-react";
+import { CheckCircle2, CircleAlert, PartyPopper, RotateCcw, Target } from "lucide-react";
 import { MISSIONS, type Mission } from "@/content/missions";
 import { evidenceFrom, planSession, scoreCheck, stepLabel, type MissionResult, type SessionMode, type TaskOutcome } from "@/lib/missions";
 import { FIRST_INTERVAL_DAYS } from "@/lib/mastery";
@@ -25,12 +25,12 @@ export function MissionSession({
 }) {
   const steps = useMemo(() => planSession(mission, mode, focus), [mission, mode, focus]);
   const [i, setI] = useState(0);
-  const [result, setResult] = useState<{ r: MissionResult; xp: number } | null>(null);
+  const [result, setResult] = useState<MissionResult | null>(null);
 
   const step = steps[i];
   const advance = () => setI((n) => n + 1);
 
-  if (result) return <MissionResultView mission={mission} result={result.r} xp={result.xp} onFinish={onFinish} />;
+  if (result) return <MissionResultView mission={mission} result={result} onFinish={onFinish} />;
   if (!step) return null;
 
   const onTasksDone = (outcomes: TaskOutcome[]) => {
@@ -38,8 +38,8 @@ export function MissionSession({
     const evidence = evidenceFrom(outcomes, step.final);
     if (step.final) {
       const r = scoreCheck(outcomes);
-      const xp = completeMission(mission.id, evidence, r, mission.wordIds);
-      setResult({ r, xp });
+      completeMission(mission.id, evidence, r, mission.wordIds);
+      setResult(r);
     } else {
       completeMission(mission.id, evidence, null);
       advance();
@@ -64,12 +64,10 @@ export function MissionSession({
 function MissionResultView({
   mission,
   result,
-  xp,
   onFinish,
 }: {
   mission: Mission;
   result: MissionResult;
-  xp: number;
   onFinish: (next: { mode: SessionMode; focus?: string[] } | null) => void;
 }) {
   const { settings } = useProgress();
@@ -117,9 +115,8 @@ function MissionResultView({
           })}
       </ul>
 
-      {(xp > 0 || result.status === "mastered") && (
-        <div className="mx-auto mt-6 grid max-w-xs grid-cols-2 gap-3">
-          <StatCard label="XP" tone="saffron" value={xp} icon={<Star className="size-5 fill-current" />} />
+      {result.status === "mastered" && (
+        <div className="mx-auto mt-6 grid max-w-[10rem] grid-cols-1 gap-3">
           <StatCard label="Check" tone="pista" value={`${result.score}%`} />
         </div>
       )}

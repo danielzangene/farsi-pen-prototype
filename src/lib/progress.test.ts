@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dayKey } from "./gamification";
-import { courseProgress, dayState, monthGrid, soundTrends, xpByDay, xpByWeek } from "./progress";
+import { courseProgress, dayState, monthGrid, soundTrends } from "./progress";
 import { DEFAULT_STATE } from "./store";
 
 const now = new Date(2026, 10, 9, 12); // Monday 9 Nov 2026
@@ -13,19 +12,12 @@ describe("progress", () => {
     g.forEach((w) => expect(w).toHaveLength(7));
   });
   it("tells goal days from practice days", () => {
-    const s = { ...DEFAULT_STATE, daily: { a: { words: 20, xp: 5 }, b: { words: 1, xp: 3 } } };
+    const s = { ...DEFAULT_STATE, daily: { a: { words: 20 }, b: { words: 1 }, d: { words: 0 } }, activity: { e: ["grammar" as const] } };
     expect(dayState(s, "a")).toBe("goal");
     expect(dayState(s, "b")).toBe("practised");
+    expect(dayState(s, "d")).toBe("practised"); // a zero-word session (mission, grammar, reading…)
+    expect(dayState(s, "e")).toBe("practised");
     expect(dayState(s, "c")).toBe("none");
-  });
-  it("sums XP by day and by week", () => {
-    const daily = { [dayKey(now)]: { words: 0, xp: 10 }, "2026-11-08": { words: 0, xp: 5 }, "2026-11-02": { words: 0, xp: 7 } };
-    const days = xpByDay({ daily }, 7, now);
-    expect(days[6]).toMatchObject({ value: 10, current: true });
-    expect(days[5].value).toBe(5);
-    const weeks = xpByWeek({ daily }, 2, now);
-    expect(weeks[1].value).toBe(10); // this week: Mon 9 Nov
-    expect(weeks[0].value).toBe(12); // 2–8 Nov
   });
   it("tracks how sounds moved", () => {
     const s = { soundStats: { kh: { n: 4, avg: 70, last: "" } }, soundHistory: { "2026-11-01": { kh: 30 }, "2026-11-05": { kh: 55 } } };

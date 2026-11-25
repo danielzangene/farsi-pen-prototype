@@ -13,7 +13,7 @@ export const MAX_REVIEWS = 20;
 
 export interface Deck {
   ids: string[];
-  /** Words that were due or new — only these earn XP. */
+  /** Words that were due or new — only these count toward the daily goal. */
   eligible: Set<string>;
 }
 

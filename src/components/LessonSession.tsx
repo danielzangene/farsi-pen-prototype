@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Eye, PartyPopper, RotateCcw, Sparkles, Target, ThumbsUp, Zap } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Eye, PartyPopper, RotateCcw, Sparkles, Target, ThumbsUp } from "lucide-react";
 import { LESSONS, lessonWords, type Lesson } from "@/content/lessons";
 import type { Word } from "@/content/words";
 import { completeLesson, useProgress, type SessionSummary } from "@/lib/store";
@@ -18,7 +18,7 @@ type Phase =
   | { name: "recognition" }
   | { name: "interstitial"; recognised: number }
   | { name: "recall"; recognised: number }
-  | { name: "result"; recognised: number; recall: SessionSummary; xp: number };
+  | { name: "result"; recognised: number; recall: SessionSummary };
 
 const EXIT = "/app/";
 // The session progress bar splits evenly: study, round 1, round 2.
@@ -163,12 +163,12 @@ export function LessonSession({ lesson }: { lesson: Lesson }) {
           progressSpan={[2 * STEP, 1]}
           toolbar={<CardControls />}
           onDone={(recall) => {
-            const xp = completeLesson(lesson.id, {
+            completeLesson(lesson.id, {
               ...recall,
               correct: recall.correct + phase.recognised,
               total: recall.total * 2,
             });
-            setPhase({ name: "result", recognised: phase.recognised, recall, xp });
+            setPhase({ name: "result", recognised: phase.recognised, recall });
           }}
         />
       )}
@@ -178,7 +178,6 @@ export function LessonSession({ lesson }: { lesson: Lesson }) {
           words={words}
           recognised={phase.recognised}
           recall={phase.recall}
-          xp={phase.xp}
           nextLesson={nextLesson}
           onReview={() => setPhase({ name: "preview" })}
         />
@@ -260,14 +259,12 @@ function Result({
   words,
   recognised,
   recall,
-  xp,
   nextLesson,
   onReview,
 }: {
   words: Word[];
   recognised: number;
   recall: SessionSummary;
-  xp: number;
   nextLesson?: Lesson;
   onReview: () => void;
 }) {
@@ -287,8 +284,7 @@ function Result({
         <p className="mt-2 font-semibold text-muted">
           {correct}/{total} answers right
         </p>
-        <div className="mt-6 grid w-full max-w-xl grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard label="Total XP" value={xp} tone="saffron" icon={<Zap className="size-5 fill-current" />} />
+        <div className="mt-6 grid w-full max-w-xl grid-cols-3 gap-3">
           <StatCard label="Accuracy" value={`${pct}%`} tone="pista" icon={<Target className="size-5" />} />
           <StatCard label="Good" value={good} tone="sky" icon={<ThumbsUp className="size-5" />} />
           <StatCard label="Again" value={again} tone="anar" icon={<RotateCcw className="size-5" />} />

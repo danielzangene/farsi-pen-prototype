@@ -19,7 +19,7 @@ const STEPS = ["Before you read", "Read", "Check", "Written and spoken", "Gramma
 export function ReadingLessonView({ lesson }: { lesson: ReadingLesson }) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [done, setDone] = useState<{ xp: number; correct: number } | null>(null);
+  const [done, setDone] = useState<{ correct: number } | null>(null);
   const correct = lesson.check.filter((q, i) => answers[i] === q.answer).length;
   const top = useRef<HTMLDivElement>(null);
 
@@ -37,8 +37,7 @@ export function ReadingLessonView({ lesson }: { lesson: ReadingLesson }) {
         </p>
         <h1 className="mt-4 text-3xl font-extrabold">Lesson {lesson.number} done</h1>
         <p className="mt-2 font-semibold text-muted">{lesson.topic}</p>
-        <div className="mt-6 grid w-full grid-cols-2 gap-3">
-          <StatCard label="Total XP" value={done.xp} tone="saffron" />
+        <div className="mt-6 grid w-full max-w-[12rem] grid-cols-1 gap-3">
           <StatCard label="Understood" value={`${done.correct}/${lesson.check.length}`} tone="pista" />
         </div>
         <div className="mt-8 flex w-full max-w-md flex-col gap-3">
@@ -86,7 +85,7 @@ export function ReadingLessonView({ lesson }: { lesson: ReadingLesson }) {
             type="button"
             className="btn-primary min-w-36"
             disabled={!canNext}
-            onClick={() => (last ? setDone({ xp: completeReading(lesson.id, correct, lesson.check.length), correct }) : setStep(step + 1))}
+            onClick={() => (last ? (completeReading(lesson.id, correct, lesson.check.length), setDone({ correct })) : setStep(step + 1))}
           >
             {last ? "Finish" : step === 0 ? "Start reading" : "Next"} {!last && <ArrowRight className="size-4" />}
           </button>

@@ -3,6 +3,7 @@ import {
   BookOpen,
   Check,
   Compass,
+  Flame,
   Layers,
   Mic,
   MonitorPlay,
@@ -79,7 +80,7 @@ const FEATURES = [
     icon: Star,
     tone: "bg-saffron-soft text-saffron-ink",
     title: "Progress that means something",
-    text: "XP for skills you prove, not clicks. When you've mastered something, the app says so and moves on.",
+    text: "Skills you prove, not clicks. When you've mastered something, the app says so and moves on. Claim a daily flame each time you come back.",
   },
 ];
 
@@ -90,7 +91,7 @@ const LETTER_STRIP =
 
 const QUIZ_OPTIONS = ["hello", "goodbye", "thank you", "please"];
 
-/** Decorative hero: a stack of the app's own UI (quiz card, path node, XP chip). */
+/** Decorative hero: a stack of the app's own UI (quiz card, path node, flame chip). */
 function HeroVisual() {
   return (
     <div
@@ -136,7 +137,7 @@ function HeroVisual() {
       </div>
 
       <span className="absolute -left-2 bottom-0 flex -rotate-6 items-center gap-1 rounded-2xl border border-saffron bg-saffron-soft px-3 py-1.5 text-base font-extrabold text-saffron-ink sm:-left-6">
-        <Star className="size-5 fill-saffron text-saffron-shadow" /> +2 XP
+        <Flame className="size-5 fill-saffron text-saffron-shadow" /> +3 flames
       </span>
     </div>
   );

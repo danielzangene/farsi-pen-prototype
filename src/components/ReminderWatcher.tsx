@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { dayKey } from "@/lib/gamification";
 import { reminderDelay } from "@/lib/reminder";
-import { today, updateSettings, useProgress } from "@/lib/store";
+import { practisedToday, updateSettings, useProgress } from "@/lib/store";
 
 /**
  * Shows the daily reminder as a system notification while the app is open
@@ -12,7 +12,7 @@ import { today, updateSettings, useProgress } from "@/lib/store";
 export function ReminderWatcher() {
   const s = useProgress();
   const { reminder, remindedOn } = s.settings;
-  const practised = today(s).xp > 0;
+  const practised = practisedToday(s);
   useEffect(() => {
     if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
     const day = dayKey();
@@ -20,7 +20,7 @@ export function ReminderWatcher() {
     if (ms === null || ms > 2 ** 31 - 1) return;
     const t = window.setTimeout(() => {
       try {
-        const n = new Notification("Time for Persian", { body: "Ten minutes today keeps your streak going.", icon: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/icon-192.png`, tag: "farsi-pen-daily" });
+        const n = new Notification("Time for Persian", { body: "Ten minutes today keeps your Persian moving.", icon: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/icon-192.png`, tag: "farsi-pen-daily" });
         n.onclick = () => {
           window.focus();
           n.close();

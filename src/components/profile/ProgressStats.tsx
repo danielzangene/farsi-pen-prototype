@@ -1,29 +1,31 @@
 "use client";
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Flame, Star, TrendingDown, TrendingUp, Zap } from "lucide-react";
+import { BookOpen, CalendarCheck, ChevronLeft, ChevronRight, Flame, GraduationCap, TrendingDown, TrendingUp } from "lucide-react";
 import { dayKey } from "@/lib/gamification";
-import { courseProgress, dayState, monthGrid, soundTrends, xpByDay, xpByWeek, type Bar } from "@/lib/progress";
-import { currentStreak, useProgress } from "@/lib/store";
+import { useFlame } from "@/lib/flame";
+import { courseProgress, dayState, monthGrid, soundTrends } from "@/lib/progress";
+import { useProgress, wordsLearned } from "@/lib/store";
 import { cx } from "@/lib/util";
-import { Fa, ProgressBar, Segmented } from "@/components/ui";
-import { BadgesCard, LevelCard } from "@/components/Achievements";
+import { Fa, ProgressBar } from "@/components/ui";
+import { BadgesCard } from "@/components/Achievements";
 
-/** Profile's Progress group: streak and XP tiles, level, calendar, charts, sounds, course and badges. Render after hydration. */
+/** Profile's Progress group: flames and practice tiles, the practice calendar, sounds, course and badges. Render after hydration. */
 export function ProgressStats() {
   const s = useProgress();
-  const streak = currentStreak(s);
+  const flame = useFlame();
+  const lessonsDone = Object.values(s.lessons).filter((l) => l.completedAt).length;
   const practisedDays = Object.keys(s.daily).filter((k) => dayState(s, k) !== "none").length;
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Tile icon={<Flame className={cx("size-5", streak ? "fill-anar text-anar-ink" : "text-faint")} />} value={streak} label="day streak" />
-        <Tile icon={<Flame className="size-5 text-muted" />} value={s.streak.record} label="best streak" />
-        <Tile icon={<Zap className="size-5 fill-saffron text-saffron-shadow" />} value={s.xp} label="total XP" />
-        <Tile icon={<Star className="size-5 fill-sky text-sky-ink" />} value={practisedDays} label="days practised" />
+      <div className={cx("grid grid-cols-2 gap-3", flame.status === "off" ? "sm:grid-cols-3" : "sm:grid-cols-4")}>
+        {flame.status !== "off" && (
+          <Tile icon={<Flame className="size-5 fill-saffron text-saffron-shadow" />} value={flame.status === "ready" ? flame.flame : "–"} label="flames" />
+        )}
+        <Tile icon={<CalendarCheck className="size-5 text-sky-ink" />} value={practisedDays} label="days practised" />
+        <Tile icon={<BookOpen className="size-5 text-firuze-ink" />} value={wordsLearned(s)} label="words learned" />
+        <Tile icon={<GraduationCap className="size-5 text-pista-ink" />} value={lessonsDone} label="lessons done" />
       </div>
-      <LevelCard />
-      <StreakCalendar />
-      <XpChart />
+      <PracticeCalendar />
       <SoundsOverTime />
       <CourseProgress />
       <BadgesCard />
@@ -43,7 +45,7 @@ function Tile({ icon, value, label }: { icon: React.ReactNode; value: React.Reac
   );
 }
 
-function StreakCalendar() {
+function PracticeCalendar() {
   const s = useProgress();
   const [offset, setOffset] = useState(0);
   const today = new Date();
@@ -117,82 +119,6 @@ function StreakCalendar() {
         </span>
       </p>
     </section>
-  );
-}
-
-function XpChart() {
-  const s = useProgress();
-  const [range, setRange] = useState<"week" | "weeks">("week");
-  const bars = range === "week" ? xpByDay(s, 7) : xpByWeek(s, 8);
-  const total = bars.reduce((n, b) => n + b.value, 0);
-  const max = Math.max(10, ...bars.map((b) => b.value));
-  return (
-    <section className="card p-5" aria-labelledby="xp-heading">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 id="xp-heading" className="text-xl font-extrabold">
-            XP {range === "week" ? "this week" : "by week"}
-          </h3>
-          <p className="text-sm font-semibold text-muted">
-            {total} XP {range === "week" ? "in the last 7 days" : "in the last 8 weeks"}
-          </p>
-        </div>
-        <Segmented
-          label="Range"
-          value={range}
-          onChange={setRange}
-          options={[
-            { value: "week", label: "7 days" },
-            { value: "weeks", label: "8 weeks" },
-          ]}
-        />
-      </div>
-      <div className="relative mt-6" aria-hidden>
-        <span className="absolute -top-4 start-0 text-xs font-bold text-muted">{max} XP</span>
-        <div className="flex h-44 items-end gap-1.5 border-b border-line pt-2 sm:gap-3">
-          {bars.map((b) => (
-            <BarMark key={b.key} bar={b} max={max} />
-          ))}
-        </div>
-        <div className="mt-1.5 flex gap-1.5 sm:gap-3">
-          {bars.map((b) => (
-            <span key={b.key} className={cx("min-w-0 flex-1 truncate text-center text-xs font-bold", b.current ? "text-ink" : "text-muted")}>
-              {b.label}
-            </span>
-          ))}
-        </div>
-      </div>
-      <table className="sr-only">
-        <caption>XP {range === "week" ? "per day" : "per week"}</caption>
-        <tbody>
-          {bars.map((b) => (
-            <tr key={b.key}>
-              <th scope="row">{b.label}</th>
-              <td>{b.value} XP</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </section>
-  );
-}
-
-function BarMark({ bar, max }: { bar: Bar; max: number }) {
-  const [hover, setHover] = useState(false);
-  const h = bar.value ? Math.max(4, (bar.value / max) * 100) : 0;
-  return (
-    <div
-      className="group relative flex h-full min-w-0 flex-1 items-end"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      <div className={cx("w-full rounded-t-[4px]", bar.current ? "bg-saffron" : "bg-saffron/60", hover && "bg-saffron")} style={{ height: `${h}%` }} />
-      {hover && (
-        <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 whitespace-nowrap rounded-lg border border-line bg-card px-2 py-1 text-xs font-extrabold shadow">
-          {bar.label}: {bar.value} XP
-        </span>
-      )}
-    </div>
   );
 }
 

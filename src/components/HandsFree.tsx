@@ -62,7 +62,7 @@ export function HandsFree({
   englishFirst: boolean;
   scoreRepeats: boolean;
   onExit: () => void;
-  onDone: (heard: number, xp: number) => void;
+  onDone: (heard: number) => void;
 }) {
   const s = useProgress();
   const [items] = useState<HandsFreeItem[]>(() => buildItems(source, s));
@@ -99,7 +99,8 @@ export function HandsFree({
 
   const finish = useCallback(() => {
     const heard = Math.min(items.length, reached.current);
-    onDone(heard, completeHandsFree(heard));
+    completeHandsFree(heard);
+    onDone(heard);
   }, [items.length, onDone]);
 
   const playFrom = useCallback(

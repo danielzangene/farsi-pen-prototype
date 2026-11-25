@@ -114,7 +114,6 @@ function LetterDetail({ letter }: { letter: Letter }) {
   const s = useProgress();
   const forms = letterForms(letter);
   const [form, setForm] = useState<FormName>("isolated");
-  const [xpMsg, setXpMsg] = useState<string | null>(null);
   const best = s.traced[letter.id] ?? 0;
 
   return (
@@ -178,18 +177,8 @@ function LetterDetail({ letter }: { letter: Letter }) {
           key={form}
           text={forms[form]}
           passMark={TRACE_PASS}
-          onScore={(score) => {
-            const xp = recordTrace(letter.id, score);
-            setXpMsg(xp ? `+${xp} XP` : null);
-          }}
+          onScore={(score) => recordTrace(letter.id, score)}
         />
-        {xpMsg && (
-          <p className="mt-2 text-center">
-            <span key={xpMsg} className="chip animate-pop bg-saffron-soft text-saffron-ink">
-              {xpMsg}
-            </span>
-          </p>
-        )}
         <p className="mt-3 text-center text-xs font-semibold text-muted">Write right to left, and don’t forget the dots. Stroke-order hints are coming next.</p>
       </div>
     </div>

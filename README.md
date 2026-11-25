@@ -11,9 +11,9 @@ The app is organised as it is in the navigation: **Home** (a greeting and Journe
 | Area | In the demo |
 | --- | --- |
 | Sign-in | `/app` is behind **Google sign-in** (Supabase Auth) when the build has a Supabase project; signed-out visitors land on `/login/` and return to the page they asked for. The landing page and the privacy policy stay public. Builds without a project (local dev, PR builds) run open |
-| Home | A greeting, then Journey. Two onboarding questions (why you're learning; can you read the script?); the second sets the script and lets readers skip the alphabet on Journey |
+| Home | A greeting, the daily flame (signed in: claim 1–4 flames once a UTC day; everyone starts with 10, kept on the Supabase profile), then Journey. Two onboarding questions (why you're learning; can you read the script?); the second sets the script and lets readers skip the alphabet on Journey |
 | Journey (on Home) | The whole course in order, from the first letter to reading real Persian, in 7 sections (Start, then A1 → B2): letters, the sound path, lessons, missions, scenes, grammar and readings as steps. Take them in order or open any step; the next one is opened for you. Each finished lesson offers Speak and Hands-free on its words, and Practise below the path links My cards, Speak and Hands-free |
-| Lessons | 40 vocabulary lessons / 583 words in 5 units (First Steps → Independent). Preview → study cards → Round 1 recognition (4 options, keys 1–4 / A–D) → Round 2 typed recall (missed words re-queue) → result with XP. Each lesson is a Journey step |
+| Lessons | 40 vocabulary lessons / 583 words in 5 units (First Steps → Independent). Preview → study cards → Round 1 recognition (4 options, keys 1–4 / A–D) → Round 2 typed recall (missed words re-queue) → result. Each lesson is a Journey step |
 | Grammar | 54 concepts from A1 to B2, each a Journey step at its level (pronouns, ezâfe, râ, every tense, subjunctive, conditionals, passive, reported speech, spoken Persian, ta'ârof…), each with a table, key points, examples and exercises (80% to pass) |
 | Alphabet | The 32 letters plus آ, short-vowel signs, letter audio, the forms each letter really has (آ: alone/start; ا: alone/end), example words and **letter tracing with scoring** — the "pen" |
 | Sounds | The sounds English doesn't have: a path of short stages, a guide to making each one, and a daily workout on the weakest |
@@ -23,11 +23,11 @@ The app is organised as it is in the navigation: **Home** (a greeting and Journe
 | Scenes | 8 short everyday sketches with the same family: pick a part, the others are read for you, and you say your lines |
 | Reading | 8 lessons on real topics about Iran (Kashan, qanats, Saadi…): each starts with a question and ends with you answering it in Persian |
 | Poetry | Fâl-e Hâfez (12 ghazals with transliteration, English and key words) and a poem of the day; full poems load from Ganjoor's open data in-app, and any word can be looked up |
-| Profile | Exams (placement test A0 → B2 and SAMFA practice), Progress (calendar, charts, level, streak and badges, kept in this browser) and Settings: name, goals, card defaults, keyboard, sync; Voice & speech, backup / restore and daily reminder, account and reset sit in sections that start closed |
+| Profile | Exams (placement test A0 → B2 and SAMFA practice), Progress (flames from your account; practice calendar, sounds, course and badges kept in this browser) and Settings: name, goals, card defaults, keyboard, sync; Voice & speech, backup / restore and daily reminder, account and reset sit in sections that start closed |
 | Everywhere | Typo-tolerant answer checking (Arabic ك/ي → ک/ی, ZWNJ and diacritics ignored, synonyms, "almost — check your spelling"); on-screen Persian keyboard (ISIRI); English ⇄ Persian dictionary (46,000+ entries) with "Did you mean…?" spelling help; YouGlish clips of native speakers; "Report a problem" on every item (pre-filled GitHub issue, label `content`); installable as a PWA |
 | Optional backend | With the Worker in `worker/` configured: an AI conversation tutor, progress sync between devices (by random code, no account) and in-app feedback. Hidden otherwise |
 
-All vocabulary, examples, grammar text, level and badge names are original Farsi Pen content. **They are drafts awaiting native-speaker review** (spec §3) — native speakers can check them at `/app/review/`.
+All vocabulary, examples, grammar text and badge names are original Farsi Pen content. **They are drafts awaiting native-speaker review** (spec §3) — native speakers can check them at `/app/review/`.
 
 ### Not in the demo yet
 

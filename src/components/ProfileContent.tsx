@@ -1,8 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Bookmark, ClipboardCheck, Info, ShieldCheck } from "lucide-react";
-import { levelFor } from "@/lib/gamification";
-import { currentStreak, NAME_MAX_LENGTH, resetProgress, updateSettings, useHydrated, useProgress } from "@/lib/store";
+import { NAME_MAX_LENGTH, resetProgress, updateSettings, useHydrated, useProgress } from "@/lib/store";
 import { CardControls } from "@/components/CardControls";
 import { Collapsible, LinkRows, Segmented } from "@/components/ui";
 import { RecognitionSetup, VoiceSetup } from "@/components/SpeechSetup";
@@ -12,6 +11,7 @@ import { FeedbackCard } from "@/components/FeedbackCard";
 import { AccountCard } from "@/components/AccountCard";
 import { AUTH_ENABLED } from "@/lib/backend";
 import { useAuth } from "@/lib/auth";
+import { useFlame } from "@/lib/flame";
 import { Avatar } from "@/components/Avatar";
 import { ExamCards } from "@/components/profile/ExamCards";
 import { ProgressStats } from "@/components/profile/ProgressStats";
@@ -31,7 +31,7 @@ export default function ProfileContent() {
   const { user } = useAuth();
   const hydrated = useHydrated();
   const [confirming, setConfirming] = useState(false);
-  const level = levelFor(s.xp);
+  const flame = useFlame();
 
   return (
     <>
@@ -40,9 +40,11 @@ export default function ProfileContent() {
         <div className="min-w-0">
           <p className="truncate text-xl font-extrabold">{settings.name || "Learner"}</p>
           {user?.email && <p className="truncate text-sm font-semibold text-muted">{user.email}</p>}
-          <p className="text-sm text-muted">
-            Level {level.number} · {level.current.name} · {s.xp} XP · {currentStreak(s)} day streak
-          </p>
+          {flame.status === "ready" && (
+            <p className="text-sm text-muted">
+              {flame.flame} {flame.flame === 1 ? "flame" : "flames"}
+            </p>
+          )}
         </div>
       </section>
 
@@ -187,7 +189,7 @@ export default function ProfileContent() {
       <AccountCard />
 
       <Collapsible id="reset" title="Reset progress" titleClassName="text-anar-ink">
-        <p className="text-sm font-semibold text-muted">Removes XP, streaks, lessons, reviews, bookmarks and badges from this browser. Settings are kept.</p>
+        <p className="text-sm font-semibold text-muted">Removes lessons, reviews, bookmarks and badges from this browser. Settings and flames are kept.</p>
         {confirming ? (
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <button

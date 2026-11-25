@@ -30,7 +30,6 @@ export function ScenePlayer({ scene }: { scene: Scene }) {
   const [takes, setTakes] = useState<Record<number, Take>>({});
   const [mic, setMic] = useState<MicState>("idle");
   const [error, setError] = useState("");
-  const [xp, setXp] = useState(0);
   const live = useRef<Listening | null>(null);
   const current = useRef<HTMLLIElement | null>(null);
   const saved = useRef(false);
@@ -77,7 +76,7 @@ export function ScenePlayer({ scene }: { scene: Scene }) {
     saved.current = true;
     const yours = script.filter((x) => isLine(x) && x.who === part).length;
     const good = Object.values(takes).filter((t) => t.verdict !== "wrong").length;
-    setXp(completeScene(scene.id, part, good, engine ? yours : 0));
+    completeScene(scene.id, part, good, engine ? yours : 0);
     setPhase("done");
   }, [phase, idx, script, part, takes, scene.id, engine]);
 
@@ -143,8 +142,7 @@ export function ScenePlayer({ scene }: { scene: Scene }) {
           {part ? `You played ${CAST[part].name} in “${scene.title}”.` : "Now try it again with a part of your own."}
         </p>
         {part && (
-          <div className="mt-6 grid w-full grid-cols-2 gap-3">
-            <StatCard label="Total XP" value={xp} tone="saffron" />
+          <div className="mt-6 grid w-full max-w-[12rem] grid-cols-1 gap-3">
             <StatCard label="Lines said well" value={engine ? `${good}/${yours}` : "—"} tone="pista" />
           </div>
         )}

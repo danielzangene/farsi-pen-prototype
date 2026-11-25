@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Bookmark, Eye, EyeOff, Keyboard, RotateCcw, Target, ThumbsUp, Trophy, Zap } from "lucide-react";
+import { Bookmark, Eye, EyeOff, Keyboard, RotateCcw, Target, ThumbsUp, Trophy } from "lucide-react";
 import { WORD_BY_ID } from "@/content/words";
 import type { Deck } from "@/lib/flashcards";
 import { getWord } from "@/lib/words";
@@ -75,7 +75,7 @@ function Saved({ onFindWords }: { onFindWords: () => void }) {
   const s = useProgress();
   const [list, setList] = useState<"bookmarks" | "hidden">("bookmarks");
   const [practising, setPractising] = useState<string[] | null>(null);
-  const [result, setResult] = useState<{ r: SessionSummary; xp: number } | null>(null);
+  const [result, setResult] = useState<SessionSummary | null>(null);
   const [round, setRound] = useState(0);
 
   const ids = list === "bookmarks" ? s.bookmarks : s.hidden;
@@ -98,11 +98,14 @@ function Saved({ onFindWords }: { onFindWords: () => void }) {
             label="My cards"
             onExit={() => setPractising(null)}
             toolbar={<CardControls />}
-            onDone={(r) => setResult({ r, xp: completePractice(r) })}
+            onDone={(r) => {
+              completePractice(r);
+              setResult(r);
+            }}
           />
         </div>
       );
-    const good = Object.values(result.r.outcomes).filter((o) => o !== "again").length;
+    const good = Object.values(result.outcomes).filter((o) => o !== "again").length;
     return (
       <div className="mx-auto flex max-w-xl flex-col items-center pt-4 text-center sm:pt-10">
         <span className="grid size-24 animate-pop place-items-center rounded-full bg-saffron text-on-accent">
@@ -110,13 +113,12 @@ function Saved({ onFindWords }: { onFindWords: () => void }) {
         </span>
         <h2 className="mt-5 text-3xl font-extrabold text-saffron-ink sm:text-4xl">My cards practised!</h2>
         <p className="mt-2 font-semibold text-muted">
-          {result.r.correct}/{result.r.total} right first time
+          {result.correct}/{result.total} right first time
         </p>
-        <div className="mt-6 grid w-full grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard label="Total XP" value={result.xp} tone="saffron" icon={<Zap className="size-5 fill-current" />} />
-          <StatCard label="Accuracy" value={`${Math.round((result.r.correct / result.r.total) * 100)}%`} tone="pista" icon={<Target className="size-5" />} />
+        <div className="mt-6 grid w-full grid-cols-3 gap-3">
+          <StatCard label="Accuracy" value={`${Math.round((result.correct / result.total) * 100)}%`} tone="pista" icon={<Target className="size-5" />} />
           <StatCard label="Good" value={good} tone="sky" icon={<ThumbsUp className="size-5" />} />
-          <StatCard label="Again" value={result.r.total - good} tone="anar" icon={<RotateCcw className="size-5" />} />
+          <StatCard label="Again" value={result.total - good} tone="anar" icon={<RotateCcw className="size-5" />} />
         </div>
         <div className="mt-8 flex w-full max-w-md flex-col gap-3 sm:flex-row-reverse">
           <button type="button" className="btn-primary btn-lg flex-1" onClick={() => setPractising(null)} autoFocus>

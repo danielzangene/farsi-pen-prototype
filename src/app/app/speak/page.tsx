@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronRight, Mic, PartyPopper, Target, Zap } from "lucide-react";
+import { ChevronRight, Mic, PartyPopper, Target } from "lucide-react";
 import { LESSONS } from "@/content/lessons";
 import { WORD_BY_ID, type Word } from "@/content/words";
 import { completeSpeaking, useHydrated, useProgress, type SessionSummary } from "@/lib/store";
@@ -18,7 +18,7 @@ export default function SpeakPage() {
   const hydrated = useHydrated();
   const [source, setSource] = useState("mine");
   const [session, setSession] = useState<Word[] | null>(null);
-  const [result, setResult] = useState<{ r: SessionSummary; xp: number } | null>(null);
+  const [result, setResult] = useState<SessionSummary | null>(null);
   const [round, setRound] = useState(0);
   useEffect(() => {
     // Opened from the Word Library with a lesson filter: start with those words.
@@ -41,7 +41,10 @@ export default function SpeakPage() {
   if (session && !result)
     return (
       <div className="mx-auto max-w-3xl">
-        <SpeakRound key={round} words={session} onDone={(r) => setResult({ r, xp: completeSpeaking(r) })} />
+        <SpeakRound key={round} words={session} onDone={(r) => {
+            completeSpeaking(r);
+            setResult(r);
+          }} />
       </div>
     );
 
@@ -53,10 +56,9 @@ export default function SpeakPage() {
         </span>
         <h1 className="mt-5 text-3xl font-extrabold text-saffron-ink sm:text-4xl">Nicely said!</h1>
         <p className="mt-2 font-semibold text-muted">Speaking out loud is the fastest way to sound natural.</p>
-        <div className="mt-6 grid w-full grid-cols-3 gap-3">
-          <StatCard label="Total XP" value={result.xp} tone="saffron" icon={<Zap className="size-5 fill-current" />} />
-          <StatCard label="Accuracy" value={`${Math.round((result.r.correct / result.r.total) * 100)}%`} tone="pista" icon={<Target className="size-5" />} />
-          <StatCard label="Words" value={result.r.total} tone="sky" icon={<Mic className="size-5" />} />
+        <div className="mt-6 grid w-full grid-cols-2 gap-3">
+          <StatCard label="Accuracy" value={`${Math.round((result.correct / result.total) * 100)}%`} tone="pista" icon={<Target className="size-5" />} />
+          <StatCard label="Words" value={result.total} tone="sky" icon={<Mic className="size-5" />} />
         </div>
         <div className="mt-8 flex w-full max-w-md flex-col gap-3 sm:flex-row-reverse">
           <Link href="/app/" className="btn-primary btn-lg flex-1" autoFocus>

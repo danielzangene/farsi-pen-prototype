@@ -1,35 +1,10 @@
 "use client";
 import { useState } from "react";
 import { Trophy } from "lucide-react";
-import { BADGES, levelFor } from "@/lib/gamification";
+import { BADGES } from "@/lib/gamification";
 import { badgeStats, useProgress } from "@/lib/store";
 import { cx } from "@/lib/util";
-import { Fa, ProgressBar } from "./ui";
-
-/** Level name, the bar to the next level and XP to go. */
-export function LevelCard() {
-  const s = useProgress();
-  const level = levelFor(s.xp);
-  return (
-    <section className="card p-5" aria-labelledby="level-heading">
-      <p className="text-sm font-semibold text-saffron-ink">Level {level.number}</p>
-      <h3 id="level-heading" className="mt-0.5 flex flex-wrap items-baseline gap-x-2 text-xl font-extrabold">
-        {level.current.name}
-        <Fa className="text-lg font-semibold text-muted">{level.current.fa}</Fa>
-      </h3>
-      <ProgressBar value={level.progress} tone="saffron" className="mt-4" />
-      <p className="mt-2 text-sm text-muted">
-        {level.next ? (
-          <>
-            <strong className="font-bold text-saffron-ink">{level.toNext} XP</strong> to {level.next.name}
-          </>
-        ) : (
-          "Top level reached"
-        )}
-      </p>
-    </section>
-  );
-}
+import { ProgressBar } from "./ui";
 
 /** Badges: earned first, then the closest to being earned; four shown until expanded. */
 export function BadgesCard() {

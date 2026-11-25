@@ -1,5 +1,5 @@
-// Numbers for the Progress page: a month calendar, XP per day and per week,
-// how each sound's score has moved, and a summary of the whole course.
+// Numbers for the Progress page: a month calendar of practice days, how each
+// sound's score has moved, and a summary of the whole course.
 
 import { GRAMMAR } from "@/content/grammar";
 import { LESSONS } from "@/content/lessons";
@@ -8,7 +8,6 @@ import { READINGS } from "@/content/readings";
 import { SCENES } from "@/content/scenes";
 import { HARD_SOUNDS } from "@/content/sounds";
 import { WORDS } from "@/content/words";
-import { dayKey } from "./gamification";
 import { displayState } from "./mastery";
 import { soundPathTotals } from "./sound-path";
 import { type ProgressState, wordsLearned } from "./store";
@@ -18,7 +17,8 @@ export type DayState = "goal" | "practised" | "none";
 export function dayState(s: Pick<ProgressState, "daily" | "activity" | "settings">, key: string): DayState {
   const d = s.daily[key];
   if ((d?.words ?? 0) >= s.settings.dailyGoal) return "goal";
-  if ((s.activity?.[key]?.length ?? 0) > 0 || (d?.xp ?? 0) > 0) return "practised";
+  // A daily record is only made by practising; activity covers saves from before that was true.
+  if (d || (s.activity?.[key]?.length ?? 0) > 0) return "practised";
   return "none";
 }
 
@@ -30,39 +30,6 @@ export function monthGrid(month: Date): (Date | null)[][] {
   const cells: (Date | null)[] = [...Array(lead).fill(null), ...Array.from({ length: days }, (_, i) => new Date(month.getFullYear(), month.getMonth(), i + 1))];
   while (cells.length % 7) cells.push(null);
   return Array.from({ length: cells.length / 7 }, (_, w) => cells.slice(w * 7, w * 7 + 7));
-}
-
-export interface Bar {
-  key: string;
-  label: string;
-  value: number;
-  current: boolean;
-}
-
-/** XP for each of the last `n` days, oldest first. */
-export function xpByDay(s: Pick<ProgressState, "daily">, n = 7, now = new Date()): Bar[] {
-  return Array.from({ length: n }, (_, i) => {
-    const d = new Date(now);
-    d.setDate(d.getDate() - (n - 1 - i));
-    const key = dayKey(d);
-    return { key, label: d.toLocaleDateString("en", { weekday: "short" }), value: s.daily[key]?.xp ?? 0, current: i === n - 1 };
-  });
-}
-
-/** XP for each of the last `n` weeks (Monday to Sunday), oldest first. */
-export function xpByWeek(s: Pick<ProgressState, "daily">, n = 8, now = new Date()): Bar[] {
-  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
-  return Array.from({ length: n }, (_, i) => {
-    const start = new Date(monday);
-    start.setDate(start.getDate() - 7 * (n - 1 - i));
-    let value = 0;
-    for (let k = 0; k < 7; k++) {
-      const d = new Date(start);
-      d.setDate(d.getDate() + k);
-      value += s.daily[dayKey(d)]?.xp ?? 0;
-    }
-    return { key: dayKey(start), label: start.toLocaleDateString("en", { day: "numeric", month: "short" }), value, current: i === n - 1 };
-  });
 }
 
 /** Each scored sound's history (oldest first) and its change since the first score. */

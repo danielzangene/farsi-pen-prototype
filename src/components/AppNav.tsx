@@ -1,10 +1,11 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bookmark, CircleUserRound, Flame, House, MapIcon, Star } from "lucide-react";
-import { currentStreak, useProgress } from "@/lib/store";
+import { Bookmark, CircleUserRound, House, MapIcon } from "lucide-react";
+import { useProgress } from "@/lib/store";
 import { cx, IS_DEV_SITE } from "@/lib/util";
 import { Avatar } from "@/components/Avatar";
+import { FlameCount } from "@/components/Flame";
 import { TONE, type Tone } from "@/components/ui";
 
 type NavItem = { href: string; label: string; icon: typeof House; tone?: Tone; exact?: boolean };
@@ -60,28 +61,12 @@ export function Logo({ compact, bar }: { compact?: boolean; bar?: boolean }) {
   );
 }
 
-function StatChips({ streak, xp }: { streak: number; xp: number }) {
-  return (
-    <div className="flex items-center gap-1">
-      <span className="flex items-center gap-1 rounded-xl px-1.5 py-1.5 text-base font-extrabold text-anar-ink lg:px-2" title="Day streak" aria-label={`${streak} day streak`}>
-        <Flame className={cx("size-5", streak > 0 ? "fill-anar text-anar-ink" : "fill-line text-faint")} aria-hidden />
-        <span className={streak > 0 ? undefined : "text-muted"}>{streak}</span>
-      </span>
-      <span className="flex items-center gap-1 rounded-xl px-1.5 py-1.5 text-base font-extrabold text-saffron-ink lg:px-2" title="Total XP" aria-label={`${xp} XP`}>
-        <Star className="size-5 fill-saffron text-saffron-shadow" aria-hidden />
-        {xp}
-      </span>
-    </div>
-  );
-}
-
 export function AppNav() {
   const pathname = usePathname();
   const s = useProgress();
   const isActive = (href: string, exact?: boolean) =>
     (exact ? pathname === href || pathname === href.slice(0, -1) : pathname.startsWith(href.slice(0, -1))) ||
     (ALSO_UNDER[href] ?? []).some((h) => pathname.startsWith(h.slice(0, -1)));
-  const streak = currentStreak(s);
   // The Profile tab and sidebar link show the learner's photo when there is one, instead of the person icon.
   const photoFor = (href: string) => (href === PROFILE_HREF ? s.settings.avatarUrl : null);
   // The tab to highlight: the page's own, or the one it lives under (e.g. Missions → Adventures, SAMFA → Profile).
@@ -102,13 +87,13 @@ export function AppNav() {
         </nav>
       </aside>
 
-      {/* Mobile top bar: brand and progress. On desktop the stat chips, top right of the content column. Profile is a tab. */}
+      {/* Mobile top bar: brand and flames. On desktop the flames, top right of the content column. Profile is a tab. */}
       <header className="app-nav max-lg:material-canvas sticky top-0 z-30 border-b border-line lg:static lg:border-0">
         <div className="mx-auto flex h-14 max-w-5xl items-center gap-1 px-4 lg:h-auto lg:justify-end lg:pt-5">
           <div className="mr-auto lg:hidden">
             <Logo bar />
           </div>
-          <StatChips streak={streak} xp={s.xp} />
+          <FlameCount />
         </div>
       </header>
 
