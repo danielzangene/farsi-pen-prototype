@@ -5,8 +5,8 @@ import { Fa } from "@/components/ui";
 import { Journey } from "@/components/journey/Journey";
 
 /**
- * Home: the greeting, then the whole course (Journey) in order. Adventures live in Sections,
- * exams on Exams, numbers on Progress, settings on Profile.
+ * Home: the greeting, then the whole course (Journey) in order. Missions, Scenes, Reading and the rest
+ * live on Adventures; exams, numbers and settings on Profile.
  */
 export default function Home() {
   const s = useProgress();

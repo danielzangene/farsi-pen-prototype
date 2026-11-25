@@ -14,7 +14,7 @@ export default function MissionsPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <PageHeader title="Missions" subtitle="Real situations. Each one ends with something you can actually do in Persian." />
+      <PageHeader back={{ href: "/app/adventures/", label: "Adventures" }} title="Missions" subtitle="Real situations. Each one ends with something you can actually do in Persian." />
       <p className="mb-6 rounded-2xl bg-firuze-soft p-4 font-bold text-firuze-ink">
         {skillsMastered}/{skillsTotal} real-world skills mastered
       </p>

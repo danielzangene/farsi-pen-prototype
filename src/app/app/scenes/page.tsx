@@ -18,7 +18,7 @@ export default function ScenesPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
-      <PageHeader title="Scenes" subtitle="Short everyday sketches with the same family. Pick a part, the others are read for you, and you say your lines." />
+      <PageHeader back={{ href: "/app/adventures/", label: "Adventures" }} title="Scenes" subtitle="Short everyday sketches with the same family. Pick a part, the others are read for you, and you say your lines." />
 
       <section aria-labelledby="today-scene" className="card overflow-hidden">
         <div className="border-b border-line bg-paper px-5 py-2 text-sm font-extrabold text-muted">Today&apos;s scene</div>

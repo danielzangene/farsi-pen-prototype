@@ -4,7 +4,7 @@
 // farsi-pen-design-system skill for when to use which.
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Bookmark, CheckCircle2, ChevronLeft, ChevronRight, Snail, Volume2, X, XCircle } from "lucide-react";
+import { Bookmark, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Snail, Volume2, X, XCircle } from "lucide-react";
 import type { Word } from "@/content/words";
 import { canSpeak, onVoicesChanged, speak } from "@/lib/speech";
 import { toggleBookmark, useProgress, type Settings } from "@/lib/store";
@@ -336,7 +336,7 @@ export function LinkTiles({ items }: { items: LinkTile[] }) {
   );
 }
 
-/** A grouped list of navigation rows: optional icon, title, one muted line and a chevron (Profile, Exams). */
+/** A grouped list of navigation rows: optional icon, title, one muted line and a chevron (Profile). */
 export function LinkRows({ items }: { items: { href: string; title: string; text: string; icon?: React.ComponentType<{ className?: string; strokeWidth?: number }> }[] }) {
   return (
     <ul className="card divide-y divide-line overflow-hidden !p-0">
@@ -376,6 +376,41 @@ export function StatCard({ label, value, tone = "saffron", icon }: { label: stri
         {value}
       </div>
     </div>
+  );
+}
+
+/**
+ * A grouped card whose body opens and closes from its header (closed by default). The body only mounts while open.
+ * Linking to `#<id>` opens it on arrival, e.g. `/app/settings/#voice`.
+ */
+export function Collapsible({ id, title, titleClassName = "text-muted", children }: { id: string; title: string; titleClassName?: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const bodyId = `${id}-body`;
+  useEffect(() => {
+    if (window.location.hash !== `#${id}`) return;
+    setOpen(true);
+    document.getElementById(id)?.scrollIntoView({ block: "start" });
+  }, [id]);
+  return (
+    <section id={id} className="card scroll-mt-20 overflow-hidden !p-0">
+      <h2>
+        <button
+          type="button"
+          className="flex min-h-14 w-full items-center justify-between gap-3 px-5 py-4 text-start hover:bg-paper active:bg-paper"
+          onClick={() => setOpen(!open)}
+          aria-expanded={open}
+          aria-controls={bodyId}
+        >
+          <span className={cx("eyebrow", titleClassName)}>{title}</span>
+          <ChevronDown className={cx("size-5 shrink-0 text-faint transition-transform duration-300", open && "rotate-180")} aria-hidden />
+        </button>
+      </h2>
+      {open && (
+        <div id={bodyId} className="px-5 pb-5">
+          {children}
+        </div>
+      )}
+    </section>
   );
 }
 

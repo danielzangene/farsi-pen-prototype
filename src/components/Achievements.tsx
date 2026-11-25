@@ -13,10 +13,10 @@ export function LevelCard() {
   return (
     <section className="card p-5" aria-labelledby="level-heading">
       <p className="text-sm font-semibold text-saffron-ink">Level {level.number}</p>
-      <h2 id="level-heading" className="mt-0.5 flex flex-wrap items-baseline gap-x-2 text-xl font-extrabold">
+      <h3 id="level-heading" className="mt-0.5 flex flex-wrap items-baseline gap-x-2 text-xl font-extrabold">
         {level.current.name}
         <Fa className="text-lg font-semibold text-muted">{level.current.fa}</Fa>
-      </h2>
+      </h3>
       <ProgressBar value={level.progress} tone="saffron" className="mt-4" />
       <p className="mt-2 text-sm text-muted">
         {level.next ? (
@@ -49,9 +49,9 @@ export function BadgesCard() {
     <section className="card p-5" aria-labelledby="badges-heading">
       <div className="mb-4 flex items-center gap-2">
         <Trophy className="size-5 fill-saffron text-saffron-shadow" aria-hidden />
-        <h2 id="badges-heading" className="text-xl font-extrabold">
+        <h3 id="badges-heading" className="text-xl font-extrabold">
           Badges
-        </h2>
+        </h3>
         <span className="ms-auto text-sm text-muted">
           {s.earnedBadges.length}/{BADGES.length} earned
         </span>

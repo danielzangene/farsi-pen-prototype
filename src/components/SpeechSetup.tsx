@@ -13,7 +13,7 @@ export function NoSpeechNotice({ className }: { className?: string }) {
   return (
     <p className={`mt-3 text-sm font-bold text-anar-ink ${className ?? ""}`}>
       This browser can&apos;t listen to speech. Try Chrome, Edge or Safari, or pick another engine in{" "}
-      <Link href="/app/settings/" className="underline">
+      <Link href="/app/settings/#voice" className="underline">
         Settings
       </Link>
       .

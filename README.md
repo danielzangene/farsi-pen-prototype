@@ -6,7 +6,7 @@ Learn to read, write and speak Persian. This is the **MVP demo** of Farsi Pen V1
 
 ## What the demo includes
 
-The app is organised as it is in the navigation: **Home** (a greeting and Journey, the course), the **Learn** and **Adventures** sections, Exams, Progress and Profile.
+The app is organised as it is in the navigation: **Home** (a greeting and Journey, the course), My cards, **Adventures** (Missions, Scenes, Reading, Poetry, Alphabet and the AI tutor) and **Profile** (Exams, Progress and Settings).
 
 | Area | In the demo |
 | --- | --- |
@@ -23,9 +23,7 @@ The app is organised as it is in the navigation: **Home** (a greeting and Journe
 | Scenes | 8 short everyday sketches with the same family: pick a part, the others are read for you, and you say your lines |
 | Reading | 8 lessons on real topics about Iran (Kashan, qanats, Saadi…): each starts with a question and ends with you answering it in Persian |
 | Poetry | Fâl-e Hâfez (12 ghazals with transliteration, English and key words) and a poem of the day; full poems load from Ganjoor's open data in-app, and any word can be looked up |
-| Exams | Placement test (A0 → B2) and SAMFA proficiency-test practice |
-| Progress | Calendar, charts, level, streak and badges — everything done so far, kept in this browser |
-| Profile | Name, goals, card defaults, keyboard, voice and speech recognition, backup / restore (file), daily reminder (calendar event), sync, reset |
+| Profile | Exams (placement test A0 → B2 and SAMFA practice), Progress (calendar, charts, level, streak and badges, kept in this browser) and Settings: name, goals, card defaults, keyboard, sync; Voice & speech, backup / restore and daily reminder, account and reset sit in sections that start closed |
 | Everywhere | Typo-tolerant answer checking (Arabic ك/ي → ک/ی, ZWNJ and diacritics ignored, synonyms, "almost — check your spelling"); on-screen Persian keyboard (ISIRI); English ⇄ Persian dictionary (46,000+ entries) with "Did you mean…?" spelling help; YouGlish clips of native speakers; "Report a problem" on every item (pre-filled GitHub issue, label `content`); installable as a PWA |
 | Optional backend | With the Worker in `worker/` configured: an AI conversation tutor, progress sync between devices (by random code, no account) and in-app feedback. Hidden otherwise |
 

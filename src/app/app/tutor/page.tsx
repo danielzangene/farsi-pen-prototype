@@ -105,7 +105,7 @@ export default function TutorPage() {
   if (!hasBackend)
     return (
       <div className="mx-auto max-w-2xl">
-        <PageHeader title="Talk with the tutor" subtitle="Coming soon" />
+        <PageHeader back={{ href: "/app/adventures/", label: "Adventures" }} title="Talk with the tutor" subtitle="Coming soon" />
         <p className="card p-5 text-muted">
           A conversation partner that answers in Persian is on its way.
           Meanwhile, missions and scenes let you practise real conversations.
@@ -159,7 +159,7 @@ export default function TutorPage() {
   if (!scene)
     return (
       <div className="mx-auto max-w-2xl">
-        <PageHeader
+        <PageHeader back={{ href: "/app/adventures/", label: "Adventures" }}
           title="Talk with the tutor"
           subtitle={`An AI partner who answers in Persian at your level (${level}). Pick a situation.`}
         />

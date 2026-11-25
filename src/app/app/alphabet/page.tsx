@@ -26,7 +26,7 @@ export default function AlphabetPage() {
 
   return (
     <div>
-      <PageHeader title="Alphabet" subtitle={<>{BASE_LETTERS.length} letters plus آ, written right to left. Tap one to hear it, see its forms — then trace it.</>}>
+      <PageHeader back={{ href: "/app/adventures/", label: "Adventures" }} title="Alphabet" subtitle={<>{BASE_LETTERS.length} letters plus آ, written right to left. Tap one to hear it, see its forms — then trace it.</>}>
         <Segmented
           label="Filter"
           value={filter}

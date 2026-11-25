@@ -138,7 +138,7 @@ export function SayItDialog({ word, onClose }: { word: Word; onClose: () => void
               <CircleAlert className="size-5 shrink-0" />
               <span>
                 This browser can&apos;t listen to speech. Try Chrome, Edge or Safari, or choose Whisper in{" "}
-                <Link href="/app/settings/" className="font-bold text-sky-ink underline">
+                <Link href="/app/settings/#voice" className="font-bold text-sky-ink underline">
                   Settings
                 </Link>
                 .
