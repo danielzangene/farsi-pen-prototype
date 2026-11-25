@@ -61,7 +61,6 @@ export default function ExamsPage() {
         {[
           { href: "/app/path/", title: "Grammar, A1 to B2", text: "Every concept the exams expect, step by step on Journey" },
           { href: "/app/reading/", title: "Reading lessons", text: "Written Persian with news vocabulary" },
-          { href: "/app/practice/", title: "Daily practice", text: "Type words from memory" },
         ].map((x) => (
           <li key={x.href}>
             <Link href={x.href} className="flex min-h-[3.75rem] items-center gap-3 px-4 py-2.5 hover:bg-paper active:bg-paper">

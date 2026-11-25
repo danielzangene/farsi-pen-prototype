@@ -294,7 +294,7 @@ function Result({
           <StatCard label="Again" value={again} tone="anar" icon={<RotateCcw className="size-5" />} />
         </div>
         <p className="mt-6 max-w-md text-sm font-semibold text-muted">
-          These words are now in your Daily Practice — they’ll come back when you’re about to forget them.
+          These words are now in your flashcards — they’ll come back when you’re about to forget them.
         </p>
         {nextLesson && (
           <p className="mt-4 text-sm font-bold">
@@ -307,8 +307,8 @@ function Result({
               Continue
             </Link>
           ) : (
-            <Link href="/app/practice/" className="btn-primary btn-lg flex-1" autoFocus>
-              Daily Practice
+            <Link href="/app/bookmarks/" className="btn-primary btn-lg flex-1" autoFocus>
+              Flashcards
             </Link>
           )}
           <button type="button" className="btn-secondary btn-lg flex-1" onClick={onReview}>

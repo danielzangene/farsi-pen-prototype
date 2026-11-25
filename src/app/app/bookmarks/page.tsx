@@ -181,7 +181,7 @@ function Saved({ onFindWords }: { onFindWords: () => void }) {
           <p className="mt-2 max-w-sm font-semibold text-muted">
             {list === "bookmarks"
               ? "Tap the bookmark icon (Add to my cards) on any word, in flashcards, lessons or Browse, to collect it here."
-              : "Words you hide during practice appear here. They won't come up in Daily Practice."}
+              : "Words you hide during practice appear here. They won't come up in your flashcards."}
           </p>
           {list === "bookmarks" && (
             <button type="button" className="btn-secondary mt-6" onClick={onFindWords}>

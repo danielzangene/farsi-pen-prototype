@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, LayoutGrid, AudioLines, Bookmark, BookHeart, BookOpenText, ChartColumn, ChevronRight, CircleUserRound, Clapperboard, Compass, Flame, GraduationCap, Headphones, House, MessagesSquare, Mic, PenLine, Repeat, Route, Star } from "lucide-react";
+import { X, LayoutGrid, AudioLines, Bookmark, BookHeart, BookOpenText, ChartColumn, ChevronRight, CircleUserRound, Clapperboard, Compass, Flame, GraduationCap, Headphones, House, MessagesSquare, Mic, PenLine, Route, Star } from "lucide-react";
 import { hasBackend } from "@/lib/backend";
 import { currentStreak, useProgress } from "@/lib/store";
 import { cx, IS_DEV_SITE } from "@/lib/util";
@@ -35,7 +35,6 @@ const SECONDARY: NavItem[] = [
   { href: "/app/speak/", label: "Speak", icon: Mic, tone: "plum", parent: PATH },
   { href: "/app/scenes/", label: "Scenes", icon: Clapperboard, tone: "saffron", parent: HOME },
   { href: "/app/listen/", label: "Hands-free", icon: Headphones, tone: "pista", parent: PATH },
-  { href: "/app/practice/", label: "Daily Practice", icon: Repeat, tone: "firuze", parent: HOME },
   ...(hasBackend ? [{ href: "/app/tutor/", label: "AI tutor", icon: MessagesSquare, tone: "pista" as const, parent: HOME }] : []),
   { href: "/app/sounds/", label: "Sounds", icon: AudioLines, tone: "sky", parent: PATH },
   { href: "/app/missions/", label: "Missions", icon: Compass, tone: "firuze", parent: PATH },
@@ -225,7 +224,7 @@ const ProfileContent = dynamic(() => import("@/components/ProfileContent"), {
  */
 const MENU_GROUPS: { title: string; items: NavItem[] }[] = [
   { title: "Learn", hrefs: ["/app/path/", "/app/alphabet/", "/app/sounds/"] },
-  { title: "Practise", hrefs: ["/app/practice/", "/app/speak/", "/app/listen/"] },
+  { title: "Practise", hrefs: ["/app/speak/", "/app/listen/"] },
   { title: "Adventures", hrefs: ["/app/missions/", "/app/scenes/", "/app/reading/", "/app/poetry/", "/app/tutor/"] },
 ].map((g) => ({ title: g.title, items: g.hrefs.flatMap((h) => [...PRIMARY, ...SECONDARY].filter((l) => l.href === h)) }));
 

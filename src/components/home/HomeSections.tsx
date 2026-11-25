@@ -13,7 +13,6 @@ import {
   Compass,
   Flame,
   Headphones,
-  Keyboard,
   Layers,
   MessagesSquare,
   Mic,
@@ -322,7 +321,6 @@ export function PracticeStudio() {
     { href: "/app/scenes/", title: "Scenes", text: "Play a part, line by line", icon: Clapperboard, tone: "plum" },
     { href: "/app/listen/", title: "Hands-free", text: "Hear it, say it, repeat", icon: Headphones, tone: "firuze" },
     { href: "/app/sounds/", title: "Sound workout", text: "Your weakest sounds", icon: AudioLines, tone: "saffron" },
-    { href: "/app/practice/", title: "Type from memory", text: "Spelling and recall", icon: Keyboard, tone: "pista" },
     ...(hasBackend ? [{ href: "/app/tutor/", title: "AI tutor", text: "Chat in Persian", icon: MessagesSquare, tone: "sky" as Tone }] : []),
   ];
   return (
