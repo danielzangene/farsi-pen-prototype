@@ -283,9 +283,9 @@ export default function SamfaPage() {
             <span className="block font-extrabold">Written vs spoken</span>
             <span className="block text-sm font-semibold text-muted">Write in kitâbi Persian, not the way you speak</span>
           </Link>
-          <Link href="/app/path/" className="tile p-4">
+          <Link href="/app/" className="tile p-4">
             <span className="block font-extrabold">B1–B2 grammar</span>
-            <span className="block text-sm font-semibold text-muted">Passive, conditionals, reported speech… on Journey</span>
+            <span className="block text-sm font-semibold text-muted">Passive, conditionals, reported speech… on Home</span>
           </Link>
         </div>
       </section>

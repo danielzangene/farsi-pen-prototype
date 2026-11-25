@@ -21,7 +21,7 @@ export default function ExamsPage() {
         <h2 id="placement-heading" className="mt-1 text-2xl font-extrabold">
           Find your level
         </h2>
-        <p className="mt-1 text-muted">Words, grammar and listening from A1 up to B2. Your Journey and Today plan then start where you are.</p>
+        <p className="mt-1 text-muted">Words, grammar and listening from A1 up to B2. Your course on Home then starts where you are.</p>
         {s.placement && (
           <p className="mt-3 rounded-xl bg-paper px-4 py-3 text-sm">
             Last result: <strong className="font-bold">{LEVEL_NAME[s.placement.level]}</strong> · {s.placement.correct}/{s.placement.total} right
@@ -58,7 +58,7 @@ export default function ExamsPage() {
 
       <LinkRows
         items={[
-          { href: "/app/path/", title: "Grammar, A1 to B2", text: "Every concept the exams expect, step by step on Journey" },
+          { href: "/app/", title: "Grammar, A1 to B2", text: "Every concept the exams expect, step by step on Home" },
           { href: "/app/reading/", title: "Reading lessons", text: "Written Persian with news vocabulary" },
         ]}
       />

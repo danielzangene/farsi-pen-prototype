@@ -90,7 +90,7 @@ export default function ListenPage() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <PageHeader back={{ href: "/app/path/", label: "Journey" }} title="Hands-free" subtitle="Phone in your pocket, earphones in: hear it, say it, repeat it. For walks, cooking and the commute." />
+      <PageHeader back={{ href: "/app/", label: "Home" }} title="Hands-free" subtitle="Phone in your pocket, earphones in: hear it, say it, repeat it. For walks, cooking and the commute." />
 
       <div className="card space-y-6 p-5 sm:p-6">
         <label className="block">

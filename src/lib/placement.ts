@@ -79,7 +79,7 @@ export function levelFrom(passed: (typeof ROUNDS)[number][]): PlacementLevel {
 export function advice(level: PlacementLevel): { title: string; text: string; href: string; cta: string } {
   switch (level) {
     case "A0":
-      return { title: "A fresh start", text: "Begin with the first lessons and the alphabet. You'll be holding short conversations sooner than you think.", href: "/app/path/", cta: "Start your journey" };
+      return { title: "A fresh start", text: "Begin with the first lessons and the alphabet. You'll be holding short conversations sooner than you think.", href: "/app/", cta: "Start your journey" };
     case "A1":
       return { title: "You know the basics", text: "We'll skip nothing yet, but you'll move fast through the first lessons. Missions will put your words to work.", href: "/app/missions/", cta: "Try a mission" };
     case "A2":

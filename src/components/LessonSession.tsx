@@ -20,7 +20,7 @@ type Phase =
   | { name: "recall"; recognised: number }
   | { name: "result"; recognised: number; recall: SessionSummary; xp: number };
 
-const EXIT = "/app/path/";
+const EXIT = "/app/";
 // The session progress bar splits evenly: study, round 1, round 2.
 const STEP = 1 / 3;
 
@@ -51,7 +51,7 @@ export function LessonSession({ lesson }: { lesson: Lesson }) {
         <>
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <Link href={EXIT} className="btn-ghost -ml-3">
-              <ArrowLeft className="size-4" /> Journey
+              <ArrowLeft className="size-4" /> Home
             </Link>
             <CardControls showDirection={false} />
           </div>

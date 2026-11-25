@@ -58,8 +58,8 @@ export function GrammarLesson({ concept }: { concept: GrammarConcept }) {
           >
             Review & try again
           </button>
-          <Link href="/app/path/" className="btn-primary btn-lg">
-            Back to Journey
+          <Link href="/app/" className="btn-primary btn-lg">
+            Back to Home
           </Link>
         </div>
       </div>
@@ -68,8 +68,8 @@ export function GrammarLesson({ concept }: { concept: GrammarConcept }) {
 
   return (
     <article className="mx-auto max-w-2xl">
-      <Link href="/app/path/" className="btn-ghost btn-sm -ml-3 mb-4">
-        <ArrowLeft className="size-4" strokeWidth={3} /> Journey
+      <Link href="/app/" className="btn-ghost btn-sm -ml-3 mb-4">
+        <ArrowLeft className="size-4" strokeWidth={3} /> Home
       </Link>
 
       <p className="eyebrow text-plum-ink">
@@ -231,7 +231,7 @@ function Exercises({ exercises, onDone }: { exercises: Exercise[]; onDone: (corr
   return (
     <div className="mx-auto max-w-3xl">
       <SessionHeader
-        exitHref="/app/path/"
+        exitHref="/app/"
         progress={done / exercises.length}
         right={
           <span className="text-sm font-extrabold tabular-nums text-muted">

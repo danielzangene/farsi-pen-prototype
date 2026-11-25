@@ -315,7 +315,7 @@ export function FeedbackSheet({
 /** Result tile: a small label over a large value, tinted by tone. */
 export type LinkTile = { href: string; title: string; text: string; icon: React.ComponentType<{ className?: string; strokeWidth?: number }>; tone: Tone };
 
-/** A grid of section tiles: tinted icon, title and one live line each (Home's Adventures, Journey's Practise). */
+/** A grid of section tiles: tinted icon, title and one live line each (Journey's Practise). */
 export function LinkTiles({ items }: { items: LinkTile[] }) {
   return (
     <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">

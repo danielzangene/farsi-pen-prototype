@@ -16,7 +16,7 @@ import type { ProgressState } from "./store";
 
 export type PathItemKind = "alphabet" | "sounds" | "lesson" | "mission" | "grammar" | "scenes" | "reading";
 
-/** What each kind of step is called on Journey and Home. */
+/** What each kind of step is called on Journey. */
 export const KIND_LABEL: Record<PathItemKind, string> = { alphabet: "Letters", sounds: "Sounds", lesson: "Lesson", mission: "Mission", grammar: "Grammar", scenes: "Scenes", reading: "Reading" };
 
 export interface PathItem {
