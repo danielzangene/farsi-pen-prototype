@@ -1,7 +1,7 @@
 // Placement test: up to four short rounds (A1, A2, B1, B2) of five
 // questions — word meanings, grammar from the course, and listening to a
 // recorded sentence. Four right moves you up a round; fewer ends the test.
-// The level found tells the Today plan which lessons and grammar to skip.
+// The level found tells Journey which sections to treat as done (nextOnPath).
 
 import { GRAMMAR } from "@/content/grammar";
 import { LESSONS } from "@/content/lessons";
@@ -79,7 +79,7 @@ export function levelFrom(passed: (typeof ROUNDS)[number][]): PlacementLevel {
 export function advice(level: PlacementLevel): { title: string; text: string; href: string; cta: string } {
   switch (level) {
     case "A0":
-      return { title: "A fresh start", text: "Begin with the first lessons and the alphabet. You'll be holding short conversations sooner than you think.", href: "/app/lessons/", cta: "Start lesson 1" };
+      return { title: "A fresh start", text: "Begin with the first lessons and the alphabet. You'll be holding short conversations sooner than you think.", href: "/app/", cta: "Start your journey" };
     case "A1":
       return { title: "You know the basics", text: "We'll skip nothing yet, but you'll move fast through the first lessons. Missions will put your words to work.", href: "/app/missions/", cta: "Try a mission" };
     case "A2":

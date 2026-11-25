@@ -92,7 +92,7 @@ export function MissionScreen({ mission }: { mission: Mission }) {
               <ShieldCheck className="size-5" /> Mastered — nothing to do here until a check is due.
             </p>
             <button type="button" className="btn-secondary" onClick={() => start("full")}>
-              Replay the mission (no XP)
+              Replay the mission
             </button>
           </>
         ) : fading.length > 0 && fading.length === weak.length ? (

@@ -20,7 +20,7 @@ const BADGE: Record<OptionState, string> = {
 export function ChoiceRound({
   words,
   onDone,
-  exitHref = "/app/lessons/",
+  exitHref = "/app/",
   progressSpan = [0, 1],
   toolbar,
 }: {

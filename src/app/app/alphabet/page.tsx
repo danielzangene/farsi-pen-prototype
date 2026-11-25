@@ -14,20 +14,19 @@ export default function AlphabetPage() {
   const [filter, setFilter] = useState<"all" | "persian" | "extra">("all");
   const [selected, setSelected] = useState<Letter>(LETTERS[0]);
   const hydrated = useHydrated();
-  // Open on the next letter still to learn (where the Today plan points).
+  // Open on the next letter still to learn.
   useEffect(() => {
     if (!hydrated) return;
     const next = LETTERS.find((l) => (s.traced[l.id] ?? 0) < TRACE_PASS);
     if (next) setSelected(next);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated]);
+  }, [hydrated]); // Once, when progress loads: later tracing mustn't move the selection.
   const detailRef = useRef<HTMLDivElement>(null);
   const traced = LETTERS.filter((l) => (s.traced[l.id] ?? 0) >= TRACE_PASS).length;
   const shown = filter === "all" ? LETTERS : filter === "persian" ? LETTERS.filter((l) => l.persianOnly) : LETTERS.filter((l) => l.extra);
 
   return (
     <div>
-      <PageHeader title="Alphabet" subtitle={<>{BASE_LETTERS.length} letters plus آ, written right to left. Tap one to hear it, see its forms — then trace it.</>}>
+      <PageHeader back={{ href: "/app/adventures/", label: "Adventures" }} title="Alphabet" subtitle={<>{BASE_LETTERS.length} letters plus آ, written right to left. Tap one to hear it, see its forms — then trace it.</>}>
         <Segmented
           label="Filter"
           value={filter}
@@ -115,7 +114,6 @@ function LetterDetail({ letter }: { letter: Letter }) {
   const s = useProgress();
   const forms = letterForms(letter);
   const [form, setForm] = useState<FormName>("isolated");
-  const [xpMsg, setXpMsg] = useState<string | null>(null);
   const best = s.traced[letter.id] ?? 0;
 
   return (
@@ -179,18 +177,8 @@ function LetterDetail({ letter }: { letter: Letter }) {
           key={form}
           text={forms[form]}
           passMark={TRACE_PASS}
-          onScore={(score) => {
-            const xp = recordTrace(letter.id, score);
-            setXpMsg(xp ? `+${xp} XP` : null);
-          }}
+          onScore={(score) => recordTrace(letter.id, score)}
         />
-        {xpMsg && (
-          <p className="mt-2 text-center">
-            <span key={xpMsg} className="chip animate-pop bg-saffron-soft text-saffron-ink">
-              {xpMsg}
-            </span>
-          </p>
-        )}
         <p className="mt-3 text-center text-xs font-semibold text-muted">Write right to left, and don’t forget the dots. Stroke-order hints are coming next.</p>
       </div>
     </div>

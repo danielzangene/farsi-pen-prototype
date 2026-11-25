@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Eye, PartyPopper, RotateCcw, Sparkles, Target, ThumbsUp, Zap } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Eye, PartyPopper, RotateCcw, Sparkles, Target, ThumbsUp } from "lucide-react";
 import { LESSONS, lessonWords, type Lesson } from "@/content/lessons";
 import type { Word } from "@/content/words";
 import { completeLesson, useProgress, type SessionSummary } from "@/lib/store";
@@ -18,9 +18,9 @@ type Phase =
   | { name: "recognition" }
   | { name: "interstitial"; recognised: number }
   | { name: "recall"; recognised: number }
-  | { name: "result"; recognised: number; recall: SessionSummary; xp: number };
+  | { name: "result"; recognised: number; recall: SessionSummary };
 
-const EXIT = "/app/lessons/";
+const EXIT = "/app/";
 // The session progress bar splits evenly: study, round 1, round 2.
 const STEP = 1 / 3;
 
@@ -51,7 +51,7 @@ export function LessonSession({ lesson }: { lesson: Lesson }) {
         <>
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <Link href={EXIT} className="btn-ghost -ml-3">
-              <ArrowLeft className="size-4" /> Lessons
+              <ArrowLeft className="size-4" /> Home
             </Link>
             <CardControls showDirection={false} />
           </div>
@@ -163,12 +163,12 @@ export function LessonSession({ lesson }: { lesson: Lesson }) {
           progressSpan={[2 * STEP, 1]}
           toolbar={<CardControls />}
           onDone={(recall) => {
-            const xp = completeLesson(lesson.id, {
+            completeLesson(lesson.id, {
               ...recall,
               correct: recall.correct + phase.recognised,
               total: recall.total * 2,
             });
-            setPhase({ name: "result", recognised: phase.recognised, recall, xp });
+            setPhase({ name: "result", recognised: phase.recognised, recall });
           }}
         />
       )}
@@ -178,7 +178,6 @@ export function LessonSession({ lesson }: { lesson: Lesson }) {
           words={words}
           recognised={phase.recognised}
           recall={phase.recall}
-          xp={phase.xp}
           nextLesson={nextLesson}
           onReview={() => setPhase({ name: "preview" })}
         />
@@ -260,14 +259,12 @@ function Result({
   words,
   recognised,
   recall,
-  xp,
   nextLesson,
   onReview,
 }: {
   words: Word[];
   recognised: number;
   recall: SessionSummary;
-  xp: number;
   nextLesson?: Lesson;
   onReview: () => void;
 }) {
@@ -287,14 +284,13 @@ function Result({
         <p className="mt-2 font-semibold text-muted">
           {correct}/{total} answers right
         </p>
-        <div className="mt-6 grid w-full max-w-xl grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard label="Total XP" value={xp} tone="saffron" icon={<Zap className="size-5 fill-current" />} />
+        <div className="mt-6 grid w-full max-w-xl grid-cols-3 gap-3">
           <StatCard label="Accuracy" value={`${pct}%`} tone="pista" icon={<Target className="size-5" />} />
           <StatCard label="Good" value={good} tone="sky" icon={<ThumbsUp className="size-5" />} />
           <StatCard label="Again" value={again} tone="anar" icon={<RotateCcw className="size-5" />} />
         </div>
         <p className="mt-6 max-w-md text-sm font-semibold text-muted">
-          These words are now in your Daily Practice — they’ll come back when you’re about to forget them.
+          These words are now in your flashcards — they’ll come back when you’re about to forget them.
         </p>
         {nextLesson && (
           <p className="mt-4 text-sm font-bold">
@@ -307,8 +303,8 @@ function Result({
               Continue
             </Link>
           ) : (
-            <Link href="/app/practice/" className="btn-primary btn-lg flex-1" autoFocus>
-              Daily Practice
+            <Link href="/app/bookmarks/" className="btn-primary btn-lg flex-1" autoFocus>
+              Flashcards
             </Link>
           )}
           <button type="button" className="btn-secondary btn-lg flex-1" onClick={onReview}>

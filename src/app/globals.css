@@ -63,7 +63,7 @@
   --color-anar-soft: color-mix(in srgb, var(--color-anar) 13%, transparent);
   --color-anar-ink: #c0281f;
 
-  /* Rewards: XP, badges, done lessons (saffron) */
+  /* Rewards: flames, badges, done lessons (saffron) */
   --color-saffron: #f09a0a;
   --color-saffron-shadow: #c97c00;
   --color-saffron-soft: color-mix(in srgb, var(--color-saffron) 18%, transparent);

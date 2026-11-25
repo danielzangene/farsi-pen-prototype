@@ -10,10 +10,14 @@ import { MISSION_BY_ID } from "@/content/missions";
 import { READINGS } from "@/content/readings";
 import { SCENES } from "@/content/scenes";
 import { displayState } from "./mastery";
-import { PATH_UNITS, stageCount, stagesDone } from "./sound-path";
+import { levelRank } from "./placement";
+import { soundPathTotals } from "./sound-path";
 import type { ProgressState } from "./store";
 
 export type PathItemKind = "alphabet" | "sounds" | "lesson" | "mission" | "grammar" | "scenes" | "reading";
+
+/** What each kind of step is called on Journey. */
+export const KIND_LABEL: Record<PathItemKind, string> = { alphabet: "Letters", sounds: "Sounds", lesson: "Lesson", mission: "Mission", grammar: "Grammar", scenes: "Scenes", reading: "Reading" };
 
 export interface PathItem {
   id: string;
@@ -26,6 +30,8 @@ export interface PathItem {
   /** 0–1. */
   progress: number;
   done: boolean;
+  /** Lessons only: the lesson id, so Journey can offer Speak and Hands-free on its words. */
+  lessonId?: string;
 }
 
 export interface PathSection {
@@ -43,25 +49,26 @@ const MISSIONS_AFTER_LEVEL: Record<number, string[]> = { 1: ["meet", "cafe"], 2:
 // Grammar levels taught alongside each lesson level.
 const GRAMMAR_FOR_LEVEL: Record<number, "A1" | "A2" | undefined> = { 2: "A1", 4: "A2" };
 
-function grammarItem(s: ProgressState, level: "A1" | "A2" | "B1" | "B2"): PathItem {
-  const concepts = GRAMMAR.filter((g) => g.level === level);
-  const passed = concepts.filter((g) => s.grammar[g.id]?.passed).length;
-  return {
-    id: `grammar-${level}`,
-    kind: "grammar",
-    title: `${level} grammar`,
-    subtitle: `${passed}/${concepts.length} concepts`,
-    href: `/app/grammar/?level=${level}`,
-    badge: "🧩",
-    progress: concepts.length ? passed / concepts.length : 0,
-    done: passed === concepts.length && concepts.length > 0,
-  };
+/** One step per grammar concept of a level, in the order the units teach them. */
+function grammarItems(s: ProgressState, level: "A1" | "A2" | "B1" | "B2"): PathItem[] {
+  return GRAMMAR.filter((g) => g.level === level).map((g) => {
+    const rec = s.grammar[g.id];
+    return {
+      id: `grammar-${g.id}`,
+      kind: "grammar" as const,
+      title: g.title,
+      subtitle: rec?.passed ? `Done · best ${rec.best}%` : g.summary,
+      href: `/app/grammar/${g.id}/`,
+      badge: "🧩",
+      progress: rec?.passed ? 1 : 0,
+      done: !!rec?.passed,
+    };
+  });
 }
 
 export function buildPath(s: ProgressState, now = new Date()): PathSection[] {
   const traced = LETTERS.filter((l) => (s.traced[l.id] ?? 0) >= TRACE_PASS).length;
-  const stages = PATH_UNITS.reduce((n, u) => n + stageCount(u) + 1, 0);
-  const stagesPlayed = PATH_UNITS.reduce((n, u) => n + stagesDone(u, s.soundPath?.[u.id]), 0);
+  const { done: stagesPlayed, total: stages } = soundPathTotals(s.soundPath);
   const sections: PathSection[] = [
     {
       id: "foundations",
@@ -89,6 +96,7 @@ export function buildPath(s: ProgressState, now = new Date()): PathSection[] {
         badge: l.emoji,
         progress: rec?.completedAt ? 1 : 0,
         done: !!rec?.completedAt,
+        lessonId: l.id,
       };
     });
   // B1 vocabulary lives in the Independent section, next to the readings.
@@ -115,7 +123,7 @@ export function buildPath(s: ProgressState, now = new Date()): PathSection[] {
       items.push({ id: "scenes", kind: "scenes", title: "Scenes with the family", subtitle: `${played}/${SCENES.length} episodes`, href: "/app/scenes/", badge: "🎬", progress: played / SCENES.length, done: played === SCENES.length });
     }
     const g = GRAMMAR_FOR_LEVEL[level.id];
-    if (g) items.push(grammarItem(s, g));
+    if (g) items.push(...grammarItems(s, g));
     sections.push({ id: `level-${level.id}`, number: sections.length + 1, title: level.name.replace(/^Level \d+ · /, ""), fa: level.nameFa, cefr: level.cefr, description: level.description, items });
   }
 
@@ -138,7 +146,7 @@ export function buildPath(s: ProgressState, now = new Date()): PathSection[] {
         progress: s.readings?.[r.id] ? 1 : 0,
         done: !!s.readings?.[r.id],
       })),
-      grammarItem(s, "B1"),
+      ...grammarItems(s, "B1"),
     ],
   });
   sections.push({
@@ -148,21 +156,19 @@ export function buildPath(s: ProgressState, now = new Date()): PathSection[] {
     fa: "مسلط",
     cefr: "B2",
     description: "Linking ideas, building words, register and politeness — and the classics.",
-    items: [grammarItem(s, "B2"), { id: "poetry", kind: "reading", title: "Poetry", subtitle: "Hafez, Saadi and Khayyam", href: "/app/poetry/", badge: "🌹", progress: 0, done: false }],
+    items: [...grammarItems(s, "B2"), { id: "poetry", kind: "reading", title: "Poetry", subtitle: "Hafez, Saadi and Khayyam", href: "/app/poetry/", badge: "🌹", progress: 0, done: false }],
   });
   return sections;
 }
-
-const RANK: Record<string, number> = { Start: 0, A1: 1, A2: 2, B1: 3, B2: 4 };
 
 /**
  * The first unfinished item. Readers skip the alphabet, and sections below
  * a placement result are optional, so "next" starts at the learner's level.
  */
 export function nextOnPath(sections: PathSection[], s?: Pick<ProgressState, "settings" | "placement">): { section: PathSection; item: PathItem } | null {
-  const floor = RANK[s?.placement?.level ?? "A0"] ?? 0;
+  const floor = levelRank(s?.placement?.level);
   for (const section of sections) {
-    if (RANK[section.cefr] < floor && section.cefr !== "Start") continue;
+    if (levelRank(section.cefr) < floor && section.cefr !== "Start") continue;
     for (const item of section.items) {
       if (item.done) continue;
       if (item.kind === "alphabet" && (s?.settings.reads === "yes" || floor >= 2)) continue;

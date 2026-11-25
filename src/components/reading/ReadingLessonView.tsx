@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, Loader2, Mic, Pause, Play, Plus, Square, Volume2, X, XCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2, Mic, Pause, Play, Plus, Square, Volume2, X } from "lucide-react";
 import { GRAMMAR_BY_ID } from "@/content/grammar";
 import { readingGlossary, type FaItem, type ReadingLesson } from "@/content/readings";
 import { lookupPersian } from "@/lib/dictionary";
@@ -11,7 +11,7 @@ import { cleanFa } from "@/lib/spell";
 import { addCustomWord, completeReading, useProgress } from "@/lib/store";
 import { listen, loadWhisper, resolveEngine, SttError, whisperLoaded, type Listening } from "@/lib/stt";
 import { cx } from "@/lib/util";
-import { AudioButtons, Fa, SessionHeader, Segmented, StatCard } from "../ui";
+import { AnswerOption, AudioButtons, Fa, SessionHeader, Segmented, StatCard } from "../ui";
 
 const STEPS = ["Before you read", "Read", "Check", "Written and spoken", "Grammar in the text", "In the news", "Get to know Iran", "Your turn"] as const;
 
@@ -19,7 +19,7 @@ const STEPS = ["Before you read", "Read", "Check", "Written and spoken", "Gramma
 export function ReadingLessonView({ lesson }: { lesson: ReadingLesson }) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [done, setDone] = useState<{ xp: number; correct: number } | null>(null);
+  const [done, setDone] = useState<{ correct: number } | null>(null);
   const correct = lesson.check.filter((q, i) => answers[i] === q.answer).length;
   const top = useRef<HTMLDivElement>(null);
 
@@ -37,8 +37,7 @@ export function ReadingLessonView({ lesson }: { lesson: ReadingLesson }) {
         </p>
         <h1 className="mt-4 text-3xl font-extrabold">Lesson {lesson.number} done</h1>
         <p className="mt-2 font-semibold text-muted">{lesson.topic}</p>
-        <div className="mt-6 grid w-full grid-cols-2 gap-3">
-          <StatCard label="Total XP" value={done.xp} tone="saffron" />
+        <div className="mt-6 grid w-full max-w-[12rem] grid-cols-1 gap-3">
           <StatCard label="Understood" value={`${done.correct}/${lesson.check.length}`} tone="pista" />
         </div>
         <div className="mt-8 flex w-full max-w-md flex-col gap-3">
@@ -86,7 +85,7 @@ export function ReadingLessonView({ lesson }: { lesson: ReadingLesson }) {
             type="button"
             className="btn-primary min-w-36"
             disabled={!canNext}
-            onClick={() => (last ? setDone({ xp: completeReading(lesson.id, correct, lesson.check.length), correct }) : setStep(step + 1))}
+            onClick={() => (last ? (completeReading(lesson.id, correct, lesson.check.length), setDone({ correct })) : setStep(step + 1))}
           >
             {last ? "Finish" : step === 0 ? "Start reading" : "Next"} {!last && <ArrowRight className="size-4" />}
           </button>
@@ -289,11 +288,9 @@ function CheckStep({ lesson, answers, onAnswer }: { lesson: ReadingLesson; answe
               {q.options.map((o) => {
                 const state = a === undefined ? undefined : o === q.answer ? "correct" : o === a ? "wrong" : undefined;
                 return (
-                  <button key={o} type="button" className="tile flex items-center justify-between p-3 text-start font-bold" data-state={state} disabled={a !== undefined} onClick={() => onAnswer(i, o)}>
+                  <AnswerOption key={o} state={state} disabled={a !== undefined} onClick={() => onAnswer(i, o)}>
                     {o}
-                    {state === "correct" && <CheckCircle2 className="size-5 shrink-0" />}
-                    {state === "wrong" && <XCircle className="size-5 shrink-0" />}
-                  </button>
+                  </AnswerOption>
                 );
               })}
             </div>

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CheckCircle2, Clock, Loader2, Mic, Pause, Play, RotateCcw, Square, XCircle } from "lucide-react";
+import { Clock, Loader2, Mic, Pause, Play, RotateCcw, Square } from "lucide-react";
 import type { ReadingLesson } from "@/content/readings";
 import { CONNECTORS, RUBRIC, rubricScore, type SpeakingTask, type WritingTask } from "@/content/samfa";
 import { WORDS } from "@/content/words";
@@ -10,7 +10,7 @@ import { cleanFa, isKnown, loadLexicon, suggest, type Lexicon } from "@/lib/spel
 import { useProgress } from "@/lib/store";
 import { listen, loadWhisper, resolveEngine, SttError, whisperLoaded, type Listening } from "@/lib/stt";
 import { cx } from "@/lib/util";
-import { AudioButtons, Fa } from "../ui";
+import { AnswerOption, AudioButtons, Fa } from "../ui";
 
 /** Counts down from `seconds`; returns seconds left (0 when time is up). */
 function useCountdown(seconds: number, running = true) {
@@ -46,11 +46,9 @@ function Questions({ lesson, answers, setAnswers, submitted }: { lesson: Reading
             {q.options.map((o) => {
               const state = submitted ? (o === q.answer ? "correct" : answers[i] === o ? "wrong" : undefined) : answers[i] === o ? "selected" : undefined;
               return (
-                <button key={o} type="button" disabled={submitted} className="tile flex items-center justify-between p-3 text-start font-bold" data-state={state} onClick={() => setAnswers({ ...answers, [i]: o })}>
+                <AnswerOption key={o} state={state} disabled={submitted} onClick={() => setAnswers({ ...answers, [i]: o })}>
                   {o}
-                  {state === "correct" && <CheckCircle2 className="size-5 shrink-0" />}
-                  {state === "wrong" && <XCircle className="size-5 shrink-0" />}
-                </button>
+                </AnswerOption>
               );
             })}
           </div>
@@ -165,6 +163,20 @@ export function ReadingPractice({ lesson, minutes = 8, onDone }: { lesson: Readi
   );
 }
 
+/** The writing or speaking task: the Persian prompt (with audio), its English, and any extra lines. */
+function TaskPrompt({ prompt, children }: { prompt: { fa: string; en: string }; children?: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-line p-5">
+      <p className="flex items-start gap-1">
+        <Fa className="flex-1 text-xl font-bold leading-relaxed">{prompt.fa}</Fa>
+        <AudioButtons text={prompt.fa} compact />
+      </p>
+      <p className="mt-1 text-sm font-semibold text-muted">{prompt.en}</p>
+      {children}
+    </div>
+  );
+}
+
 function Rubric({ marks, setMarks }: { marks: Record<string, number>; setMarks: (m: Record<string, number>) => void }) {
   return (
     <div className="space-y-3">
@@ -234,16 +246,11 @@ export function WritingPractice({ task, onDone }: { task: WritingTask; onDone: (
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl border border-line p-5">
-        <p className="flex items-start gap-1">
-          <Fa className="flex-1 text-xl font-bold leading-relaxed">{task.prompt.fa}</Fa>
-          <AudioButtons text={task.prompt.fa} compact />
-        </p>
-        <p className="mt-1 text-sm font-semibold text-muted">{task.prompt.en}</p>
+      <TaskPrompt prompt={task.prompt}>
         <p className="mt-2 text-sm font-bold">
           About {task.words} words · {task.minutes} minutes
         </p>
-      </div>
+      </TaskPrompt>
       <details className="rounded-2xl bg-paper p-4" open>
         <summary className="cursor-pointer font-bold">A plan to follow</summary>
         <ol className="mt-2 list-decimal space-y-1 ps-5 text-sm font-semibold">
@@ -389,13 +396,7 @@ export function SpeakingPractice({ task, onDone }: { task: SpeakingTask; onDone:
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl border border-line p-5">
-        <p className="flex items-start gap-1">
-          <Fa className="flex-1 text-xl font-bold leading-relaxed">{task.prompt.fa}</Fa>
-          <AudioButtons text={task.prompt.fa} compact />
-        </p>
-        <p className="mt-1 text-sm font-semibold text-muted">{task.prompt.en}</p>
-      </div>
+      <TaskPrompt prompt={task.prompt} />
       <div>
         <p className="mb-2 text-sm font-extrabold text-muted">Useful phrases</p>
         <ul className="flex flex-wrap gap-2">

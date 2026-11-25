@@ -20,7 +20,6 @@ export default function PlacementPage() {
   const [right, setRight] = useState(0);
   const [passed, setPassed] = useState<(typeof ROUNDS)[number][]>([]);
   const [totals, setTotals] = useState({ correct: 0, total: 0 });
-  const [xp, setXp] = useState(0);
 
   const item = items[i];
   useEffect(() => {
@@ -62,7 +61,7 @@ export default function PlacementPage() {
       setI(0);
       setRight(0);
     } else {
-      setXp(savePlacement(levelFrom(nowPassed), t.correct, t.total));
+      savePlacement(levelFrom(nowPassed), t.correct, t.total);
       setPhase("done");
     }
   };
@@ -102,7 +101,7 @@ export default function PlacementPage() {
         <p className="mt-1 text-6xl font-extrabold text-firuze-ink">{level === "A0" ? "A0" : level}</p>
         <p className="mt-1 text-lg font-bold">{LEVEL_NAME[level]}</p>
         <p className="mt-2 text-sm font-semibold text-muted">
-          {totals.correct} of {totals.total} right · +{xp} XP
+          {totals.correct} of {totals.total} right
         </p>
         <div className="card mt-6 w-full p-5 text-start">
           <h2 className="text-xl font-extrabold">{a.title}</h2>

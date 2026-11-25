@@ -7,7 +7,6 @@ import {
   PartyPopper,
   RotateCcw,
   Target,
-  Zap,
 } from "lucide-react";
 import { getWord } from "@/lib/words";
 import { rate, startQueue, type Deck, type QueueState } from "@/lib/flashcards";
@@ -78,9 +77,7 @@ export function FlashcardSession({
   const { settings, bookmarks, customWords } = useProgress();
   const [q, setQ] = useState<QueueState>(() => startQueue(deck.ids));
   const [flipped, setFlipped] = useState(false);
-  const [result, setResult] = useState<{ xp: number; q: QueueState } | null>(
-    null,
-  );
+  const [result, setResult] = useState<{ q: QueueState } | null>(null);
 
   const id = q.queue[0];
   const word = id ? getWord(id, customWords) : undefined;
@@ -98,10 +95,8 @@ export function FlashcardSession({
       const next = rate(q, o);
       setFlipped(false);
       if (next.queue.length === 0) {
-        setResult({
-          xp: completeFlashcards(next.outcomes, deck.eligible),
-          q: next,
-        });
+        completeFlashcards(next.outcomes, deck.eligible);
+        setResult({ q: next });
       }
       setQ(next);
     },
@@ -143,7 +138,7 @@ export function FlashcardSession({
   return (
     <div className="mx-auto max-w-2xl">
       <SessionHeader
-        exitHref="/app/words/"
+        exitHref="/app/bookmarks/"
         onExit={onExit}
         progress={done / deck.ids.length}
         right={
@@ -310,7 +305,7 @@ function FlashcardResult({
   total,
   onAgain,
 }: {
-  result: { xp: number; q: QueueState };
+  result: { q: QueueState };
   total: number;
   onAgain: () => void;
 }) {
@@ -347,13 +342,6 @@ function FlashcardResult({
           icon={<RotateCcw className="size-5" />}
         />
       </div>
-      {result.xp > 0 && (
-        <p className="mt-4">
-          <span className="chip animate-pop bg-saffron-soft text-saffron-ink">
-            <Zap className="mr-1 inline size-4 fill-current" />+{result.xp} XP
-          </span>
-        </p>
-      )}
       <div className="mt-8 flex flex-col gap-3 sm:flex-row-reverse sm:justify-center">
         <Link href="/app/" className="btn-primary btn-lg" autoFocus>
           Done for today

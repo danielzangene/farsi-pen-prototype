@@ -7,7 +7,11 @@ const SECTIONS: { title: string; body: string[] }[] = [
   {
     title: "Your progress stays on your device",
     body: [
-      `Lessons, cards, streaks, scores and settings are saved in this browser's local storage.${AUTH_ENABLED ? " Signing in doesn't send them anywhere." : " There is no account."} ${
+      `Lessons, cards, scores and settings are saved in this browser's local storage.${
+        AUTH_ENABLED
+          ? " When you sign in, your name, photo, learning choices and flames are also kept on your account (with Supabase), so every device you sign in on shows the same ones. The rest stays in this browser."
+          : " There is no account."
+      } ${
         hasBackend
           ? "Nothing is sent to the Farsi Pen server unless you turn on sync, use the AI tutor or send feedback (below)."
           : "Nothing is sent to a Farsi Pen server."

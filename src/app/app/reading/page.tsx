@@ -12,7 +12,7 @@ export default function ReadingListPage() {
   const rec = s.readings ?? {};
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <PageHeader
+      <PageHeader back={{ href: "/app/adventures/", label: "Adventures" }}
         title="Reading"
         subtitle="For when you can get by and want more. Each lesson starts with a question, teaches through a real topic about Iran, and ends with you answering it in Persian."
       />

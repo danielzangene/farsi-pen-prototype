@@ -1,5 +1,5 @@
 // Flashcard decks and the in-session queue. Ratings feed the same FSRS cards as
-// lessons and Daily Practice, so a word studied here is scheduled everywhere.
+// lessons and practice rounds, so a word studied here is scheduled everywhere.
 
 import { LESSONS } from "@/content/lessons";
 import { WORD_BY_ID, WORDS } from "@/content/words";
@@ -13,7 +13,7 @@ export const MAX_REVIEWS = 20;
 
 export interface Deck {
   ids: string[];
-  /** Words that were due or new — only these earn XP. */
+  /** Words that were due or new — only these count toward the daily goal. */
   eligible: Set<string>;
 }
 

@@ -180,7 +180,7 @@ export function SyncCard() {
       ) : (
         <>
           <p className="mt-2 text-sm text-muted">
-            Use Farsi Pen on your phone and your computer with the same streak
+            Use Farsi Pen on your phone and your computer with the same lessons
             and reviews. No email or account: you get a private code.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">

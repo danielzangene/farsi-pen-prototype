@@ -1,11 +1,9 @@
 "use client";
-import Link from "next/link";
 import { useState } from "react";
-import { Bookmark, ChartColumn, ClipboardCheck, ChevronRight, Info, ShieldCheck } from "lucide-react";
-import { levelFor } from "@/lib/gamification";
-import { currentStreak, NAME_MAX_LENGTH, resetProgress, updateSettings, useProgress } from "@/lib/store";
+import { Bookmark, ClipboardCheck, Info, ShieldCheck } from "lucide-react";
+import { NAME_MAX_LENGTH, resetProgress, updateSettings, useHydrated, useProgress } from "@/lib/store";
 import { CardControls } from "@/components/CardControls";
-import { Segmented } from "@/components/ui";
+import { Collapsible, LinkRows, Segmented } from "@/components/ui";
 import { RecognitionSetup, VoiceSetup } from "@/components/SpeechSetup";
 import { ProgressTools } from "@/components/ProgressTools";
 import { SyncCard } from "@/components/SyncCard";
@@ -13,15 +11,27 @@ import { FeedbackCard } from "@/components/FeedbackCard";
 import { AccountCard } from "@/components/AccountCard";
 import { AUTH_ENABLED } from "@/lib/backend";
 import { useAuth } from "@/lib/auth";
+import { useFlame } from "@/lib/flame";
 import { Avatar } from "@/components/Avatar";
+import { ExamCards } from "@/components/profile/ExamCards";
+import { ProgressStats } from "@/components/profile/ProgressStats";
 
-/** The Profile screen's content: shown on /app/settings/ and in the phone Profile sheet. Renders siblings for a `space-y-*` parent. */
+/** A heading for one of Profile's groups (Exams, Progress, Settings). */
+function GroupTitle({ children }: { children: React.ReactNode }) {
+  return <h2 className="pt-4 text-2xl font-extrabold tracking-tight">{children}</h2>;
+}
+
+/**
+ * The Profile screen (/app/settings/): who you are, then Exams, Progress and Settings.
+ * Voice & speech, Your progress, Account and Reset progress start closed. Renders siblings for a `space-y-*` parent.
+ */
 export default function ProfileContent() {
   const s = useProgress();
   const { settings } = s;
   const { user } = useAuth();
+  const hydrated = useHydrated();
   const [confirming, setConfirming] = useState(false);
-  const level = levelFor(s.xp);
+  const flame = useFlame();
 
   return (
     <>
@@ -30,31 +40,21 @@ export default function ProfileContent() {
         <div className="min-w-0">
           <p className="truncate text-xl font-extrabold">{settings.name || "Learner"}</p>
           {user?.email && <p className="truncate text-sm font-semibold text-muted">{user.email}</p>}
-          <p className="text-sm text-muted">
-            Level {level.number} · {level.current.name} · {s.xp} XP · {currentStreak(s)} day streak
-          </p>
+          {flame.status === "ready" && (
+            <p className="text-sm text-muted">
+              {flame.flame} {flame.flame === 1 ? "flame" : "flames"}
+            </p>
+          )}
         </div>
       </section>
 
-      <ul className="card divide-y divide-line overflow-hidden !p-0">
-        {[
+      <LinkRows
+        items={[
           { href: "/app/bookmarks/", title: "My cards", text: `${s.bookmarks.length} saved`, icon: Bookmark },
-          { href: "/app/progress/", title: "Progress", text: "Calendar, charts and badges", icon: ChartColumn },
           { href: "/app/privacy/", title: "Privacy", text: "What's stored and where", icon: ShieldCheck },
           { href: "/app/review/", title: "Check the content", text: "For native speakers: review and record", icon: ClipboardCheck },
-        ].map((x) => (
-          <li key={x.href}>
-            <Link href={x.href} className="flex min-h-[3.75rem] items-center gap-3 px-4 py-2.5 hover:bg-paper active:bg-paper">
-              <x.icon className="size-5 shrink-0 text-muted" strokeWidth={2} />
-              <span className="min-w-0 flex-1">
-                <span className="block font-semibold">{x.title}</span>
-                <span className="block text-sm text-muted">{x.text}</span>
-              </span>
-              <ChevronRight className="size-4 text-faint" />
-            </Link>
-          </li>
-        ))}
-      </ul>
+        ]}
+      />
 
       {/* Signed-in learners get their name and photo from Google (Supabase profile); only builds without sign-in ask for a name. */}
       {!AUTH_ENABLED && (
@@ -78,6 +78,18 @@ export default function ProfileContent() {
           </p>
         </section>
       )}
+
+      {/* Exams and Progress read the saved state (and today's date), so they wait for hydration. */}
+      {hydrated && (
+        <>
+          <GroupTitle>Exams</GroupTitle>
+          <ExamCards />
+          <GroupTitle>Progress</GroupTitle>
+          <ProgressStats />
+        </>
+      )}
+
+      <GroupTitle>Settings</GroupTitle>
 
       <section className="card p-5">
         <h2 className="eyebrow text-muted">Appearance</h2>
@@ -143,7 +155,7 @@ export default function ProfileContent() {
             <span className="font-bold">Cards</span>
             <CardControls />
           </div>
-          <label className="flex cursor-pointer items-center justify-between gap-3 py-4 font-bold">
+          <label className="flex cursor-pointer items-center justify-between gap-3 pt-4 font-bold">
             On-screen Persian keyboard when typing in Farsi
             <input
               type="checkbox"
@@ -152,51 +164,32 @@ export default function ProfileContent() {
               onChange={(e) => updateSettings({ showKeyboard: e.target.checked })}
             />
           </label>
-          <label className="flex cursor-pointer items-center justify-between gap-3 pt-4 font-bold">
-            Show “Getting started” checklist
-            <input
-              type="checkbox"
-              className="size-5 shrink-0 cursor-pointer accent-firuze"
-              checked={!settings.checklistHidden}
-              onChange={(e) => updateSettings({ checklistHidden: !e.target.checked })}
-            />
-          </label>
         </div>
       </section>
 
-      <section className="card p-5">
-        <h2 className="eyebrow text-muted">Voice &amp; speech</h2>
+      <Collapsible id="voice" title="Voice & speech">
         <div className="divide-y divide-line">
-          <div className="py-4">
+          <div className="pb-4">
             <VoiceSetup />
           </div>
           <div className="pt-4">
             <RecognitionSetup />
           </div>
         </div>
-      </section>
+      </Collapsible>
 
       <SyncCard />
 
-      <section className="card p-5">
-        <h2 className="eyebrow mb-4 text-muted">Your progress</h2>
+      <Collapsible id="backup" title="Your progress">
         <ProgressTools />
-        <div className="mt-4 border-t border-line pt-4">
-          <p className="font-bold">Placement test</p>
-          <p className="mt-1 text-sm font-semibold text-muted">Find your level (A1 to B2) so Today skips what you already know.</p>
-          <Link href="/app/placement/" className="btn-secondary btn-sm mt-3">
-            Take the test
-          </Link>
-        </div>
-      </section>
+      </Collapsible>
 
       <FeedbackCard />
 
       <AccountCard />
 
-      <section className="card p-5">
-        <h2 className="eyebrow text-anar-ink">Reset progress</h2>
-        <p className="mt-2 text-sm font-semibold text-muted">Removes XP, streaks, lessons, reviews, bookmarks and badges from this browser. Settings are kept.</p>
+      <Collapsible id="reset" title="Reset progress" titleClassName="text-anar-ink">
+        <p className="text-sm font-semibold text-muted">Removes lessons, reviews, bookmarks and badges from this browser. Settings and flames are kept.</p>
         {confirming ? (
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <button
@@ -218,7 +211,8 @@ export default function ProfileContent() {
             Reset progress…
           </button>
         )}
-      </section>
+      </Collapsible>
+
       <section className="card p-5">
         <h2 className="eyebrow text-muted">Made with open sources</h2>
         <p className="mt-2 text-sm font-semibold text-muted">

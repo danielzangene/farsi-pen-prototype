@@ -4,7 +4,7 @@
 // farsi-pen-design-system skill for when to use which.
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Bookmark, CheckCircle2, Snail, Volume2, X, XCircle } from "lucide-react";
+import { Bookmark, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Snail, Volume2, X, XCircle } from "lucide-react";
 import type { Word } from "@/content/words";
 import { canSpeak, onVoicesChanged, speak } from "@/lib/speech";
 import { toggleBookmark, useProgress, type Settings } from "@/lib/store";
@@ -181,10 +181,31 @@ export function Segmented<T extends string>({
   );
 }
 
-export function PageHeader({ title, subtitle, children }: { title: string; subtitle?: React.ReactNode; children?: React.ReactNode }) {
+/** A small "‹ Journey" style link back to the page this one lives under. */
+export function BackLink({ href, label, className }: { href: string; label: string; className?: string }) {
+  return (
+    <Link href={href} className={cx("-ml-1 inline-flex min-h-11 items-center gap-0.5 rounded-xl pr-2 text-[17px] font-semibold text-firuze-ink transition-opacity duration-[60ms] hover:opacity-80 active:opacity-60", className)}>
+      <ChevronLeft className="size-5" strokeWidth={2.5} aria-hidden />
+      {label}
+    </Link>
+  );
+}
+
+export function PageHeader({
+  title,
+  subtitle,
+  back,
+  children,
+}: {
+  title: string;
+  subtitle?: React.ReactNode;
+  back?: { href: string; label: string };
+  children?: React.ReactNode;
+}) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
+        {back && <BackLink {...back} className="mb-1" />}
         <h1 className="text-3xl font-extrabold tracking-tight">{title}</h1>
         {subtitle && <p className="mt-1 font-semibold text-muted">{subtitle}</p>}
       </div>
@@ -292,6 +313,60 @@ export function FeedbackSheet({
 }
 
 /** Result tile: a small label over a large value, tinted by tone. */
+export type LinkTile = { href: string; title: string; text: string; icon: React.ComponentType<{ className?: string; strokeWidth?: number }>; tone: Tone };
+
+/** A grid of section tiles: tinted icon, title and one live line each (Journey's Practise). */
+export function LinkTiles({ items }: { items: LinkTile[] }) {
+  return (
+    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      {items.map((t) => (
+        <li key={t.href}>
+          <Link href={t.href} className="tile flex h-full flex-col gap-3 p-4">
+            <span className={cx("grid size-10 place-items-center rounded-xl text-on-accent", TONE[t.tone].bg)} aria-hidden>
+              <t.icon className="size-5" strokeWidth={2.2} />
+            </span>
+            <span>
+              <span className="block font-semibold leading-tight">{t.title}</span>
+              <span className="mt-0.5 block text-sm text-muted">{t.text}</span>
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** A grouped list of navigation rows: optional icon, title, one muted line and a chevron (Profile). */
+export function LinkRows({ items }: { items: { href: string; title: string; text: string; icon?: React.ComponentType<{ className?: string; strokeWidth?: number }> }[] }) {
+  return (
+    <ul className="card divide-y divide-line overflow-hidden !p-0">
+      {items.map((x) => (
+        <li key={x.href}>
+          <Link href={x.href} className="flex min-h-[3.75rem] items-center gap-3 px-4 py-2.5 hover:bg-paper active:bg-paper">
+            {x.icon && <x.icon className="size-5 shrink-0 text-muted" strokeWidth={2} />}
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold">{x.title}</span>
+              <span className="block text-sm text-muted">{x.text}</span>
+            </span>
+            <ChevronRight className="size-4 text-faint" />
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** A multiple-choice answer: a tile that shows correct / wrong with a labelled icon, never colour alone. */
+export function AnswerOption({ state, disabled, onClick, children }: { state?: "selected" | "correct" | "wrong"; disabled?: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button type="button" className="tile flex items-center justify-between gap-2 p-3 text-start font-bold" data-state={state} disabled={disabled} onClick={onClick}>
+      {children}
+      {state === "correct" && <CheckCircle2 className="size-5 shrink-0" aria-label="Correct" />}
+      {state === "wrong" && <XCircle className="size-5 shrink-0" aria-label="Wrong" />}
+    </button>
+  );
+}
+
 export function StatCard({ label, value, tone = "saffron", icon }: { label: string; value: React.ReactNode; tone?: Tone; icon?: React.ReactNode }) {
   return (
     <div className="card animate-pop px-3 py-3.5 text-center">
@@ -301,6 +376,41 @@ export function StatCard({ label, value, tone = "saffron", icon }: { label: stri
         {value}
       </div>
     </div>
+  );
+}
+
+/**
+ * A grouped card whose body opens and closes from its header (closed by default). The body only mounts while open.
+ * Linking to `#<id>` opens it on arrival, e.g. `/app/settings/#voice`.
+ */
+export function Collapsible({ id, title, titleClassName = "text-muted", children }: { id: string; title: string; titleClassName?: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const bodyId = `${id}-body`;
+  useEffect(() => {
+    if (window.location.hash !== `#${id}`) return;
+    setOpen(true);
+    document.getElementById(id)?.scrollIntoView({ block: "start" });
+  }, [id]);
+  return (
+    <section id={id} className="card scroll-mt-20 overflow-hidden !p-0">
+      <h2>
+        <button
+          type="button"
+          className="flex min-h-14 w-full items-center justify-between gap-3 px-5 py-4 text-start hover:bg-paper active:bg-paper"
+          onClick={() => setOpen(!open)}
+          aria-expanded={open}
+          aria-controls={bodyId}
+        >
+          <span className={cx("eyebrow", titleClassName)}>{title}</span>
+          <ChevronDown className={cx("size-5 shrink-0 text-faint transition-transform duration-300", open && "rotate-180")} aria-hidden />
+        </button>
+      </h2>
+      {open && (
+        <div id={bodyId} className="px-5 pb-5">
+          {children}
+        </div>
+      )}
+    </section>
   );
 }
 

@@ -11,7 +11,7 @@ import { ReportButton } from "./ReportButton";
 import { AudioButtons, BookmarkButton, Fa, FaWord, FeedbackSheet, FocusMode, ProgressBar, SessionHeader } from "./ui";
 
 /**
- * Typed recall used by lesson round 2, Daily Practice and bookmark practice.
+ * Typed recall used by lesson round 2 and bookmark practice.
  * Missed words go to the back of the queue until answered correctly.
  */
 export function RecallRound({

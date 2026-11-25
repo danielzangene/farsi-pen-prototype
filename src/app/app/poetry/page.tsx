@@ -14,7 +14,7 @@ export default function PoetryPage() {
   if (!hydrated) return null;
   return (
     <div className="mx-auto max-w-2xl">
-      <PageHeader title="Poetry" subtitle="Hafez, Saadi and Khayyam — the lines every Iranian knows, with help to read them.">
+      <PageHeader back={{ href: "/app/adventures/", label: "Adventures" }} title="Poetry" subtitle="Hafez, Saadi and Khayyam — the lines every Iranian knows, with help to read them.">
         <Segmented
           label="View"
           value={tab}

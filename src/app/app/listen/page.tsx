@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Headphones, Zap } from "lucide-react";
+import { Headphones } from "lucide-react";
 import { LESSONS } from "@/content/lessons";
 import { SCENES } from "@/content/scenes";
 import { WORD_BY_ID } from "@/content/words";
@@ -9,7 +9,7 @@ import { parseSource, sourceKey, type Source } from "@/lib/handsfree";
 import { useHydrated, useProgress } from "@/lib/store";
 import { resolveEngine } from "@/lib/stt";
 import { HandsFree, type Pace } from "@/components/HandsFree";
-import { PageHeader, Segmented, StatCard } from "@/components/ui";
+import { PageHeader, Segmented } from "@/components/ui";
 
 export default function ListenPage() {
   const s = useProgress();
@@ -20,7 +20,12 @@ export default function ListenPage() {
   const [score, setScore] = useState(false);
   const [session, setSession] = useState(0);
   const [running, setRunning] = useState(false);
-  const [done, setDone] = useState<{ heard: number; xp: number } | null>(null);
+  const [done, setDone] = useState<{ heard: number } | null>(null);
+  useEffect(() => {
+    // Opened from a finished lesson on Journey: start with that lesson's words.
+    const lesson = new URLSearchParams(window.location.search).get("lesson");
+    if (lesson && LESSONS.some((l) => l.id === lesson)) setKey(sourceKey({ kind: "lesson", id: lesson }));
+  }, []);
   if (!hydrated) return null;
 
   const mine = Object.keys(s.cards).filter((id) => !s.hidden.includes(id) && WORD_BY_ID[id]).length;
@@ -42,9 +47,9 @@ export default function ListenPage() {
           englishFirst={english && !isScene}
           scoreRepeats={score && canScore}
           onExit={() => setRunning(false)}
-          onDone={(heard, xp) => {
+          onDone={(heard) => {
             setRunning(false);
-            setDone({ heard, xp });
+            setDone({ heard });
           }}
         />
       </div>
@@ -56,11 +61,6 @@ export default function ListenPage() {
         <Headphones className="size-16 text-firuze-ink" strokeWidth={2.2} />
         <h1 className="mt-4 text-3xl font-extrabold text-firuze-ink">{done.heard ? "Nice listening" : "Stopped"}</h1>
         <p className="mt-2 font-semibold text-muted">{done.heard ? `You heard and repeated ${done.heard} ${done.heard === 1 ? "item" : "items"}.` : "Come back when you have a few minutes."}</p>
-        {done.heard > 0 && (
-          <div className="mt-6 grid w-full max-w-xs grid-cols-1">
-            <StatCard label="Total XP" value={done.xp} tone="saffron" icon={<Zap className="size-5 fill-current" />} />
-          </div>
-        )}
         <div className="mt-8 flex w-full max-w-md flex-col gap-3 sm:flex-row-reverse">
           <button
             type="button"
@@ -85,7 +85,7 @@ export default function ListenPage() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <PageHeader title="Hands-free" subtitle="Phone in your pocket, earphones in: hear it, say it, repeat it. For walks, cooking and the commute." />
+      <PageHeader back={{ href: "/app/", label: "Home" }} title="Hands-free" subtitle="Phone in your pocket, earphones in: hear it, say it, repeat it. For walks, cooking and the commute." />
 
       <div className="card space-y-6 p-5 sm:p-6">
         <label className="block">

@@ -10,7 +10,7 @@ Before writing code, read `.claude/skills/farsi-pen-design-system/SKILL.md`, the
 
 Working rules:
 - Only edit the files your task assigns you. Shared files (`globals.css`, `ui.tsx`, `src/lib/*`, `src/content/*`) belong to the lead: if you need a new primitive or token, describe it in your report instead of adding it.
-- Keep behaviour identical unless the task says otherwise: progress store calls, XP, answer checking, keyboard shortcuts, accessibility labels.
+- Keep behaviour identical unless the task says otherwise: progress store calls, flames, answer checking, keyboard shortcuts, accessibility labels.
 - Persian text always through `<Fa>`; respect the user's script settings.
 - Mobile first: check every layout at 375px.
 - Match the surrounding code style (named exports, `cx()` for classes, no comments that restate code).

@@ -7,7 +7,7 @@ import { analyzeSpoken, type PhonicsResult } from "@/lib/phonics";
 import { checkSpoken, type SpeakVerdict } from "@/lib/pronounce";
 import { speak, stopSpeaking } from "@/lib/speech";
 import { completeScene, recordSounds, useProgress } from "@/lib/store";
-import { listen, loadWhisper, resolveEngine, SttError, whisperLoaded, type Listening } from "@/lib/stt";
+import { listen, loadWhisper, resolveEngine, STT_ERROR_TEXT, SttError, whisperLoaded, type Listening } from "@/lib/stt";
 import { cx } from "@/lib/util";
 import { ColoredWord } from "../PronunciationFeedback";
 import { Fa, SessionHeader, StatCard, TONE } from "../ui";
@@ -18,15 +18,6 @@ type Take = { verdict: SpeakVerdict; score: number; phonics: PhonicsResult; trie
 type MicState = "idle" | "loading" | "listening" | "checking";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-const STT_ERRORS: Record<SttError["code"], string> = {
-  "no-speech": "Didn't catch that — tap the mic and try again.",
-  "not-allowed": "Microphone access is blocked. Allow it in your browser's site settings.",
-  network: "The browser's recogniser needs internet. Try again, or switch to Whisper in Settings.",
-  unsupported: "Persian recognition isn't available here. Switch to Whisper in Settings.",
-  aborted: "",
-  failed: "Something went wrong — try again.",
-};
 
 /** Plays a scene: pick a part, the voice reads the others, you say your lines. */
 export function ScenePlayer({ scene }: { scene: Scene }) {
@@ -39,7 +30,6 @@ export function ScenePlayer({ scene }: { scene: Scene }) {
   const [takes, setTakes] = useState<Record<number, Take>>({});
   const [mic, setMic] = useState<MicState>("idle");
   const [error, setError] = useState("");
-  const [xp, setXp] = useState(0);
   const live = useRef<Listening | null>(null);
   const current = useRef<HTMLLIElement | null>(null);
   const saved = useRef(false);
@@ -86,7 +76,7 @@ export function ScenePlayer({ scene }: { scene: Scene }) {
     saved.current = true;
     const yours = script.filter((x) => isLine(x) && x.who === part).length;
     const good = Object.values(takes).filter((t) => t.verdict !== "wrong").length;
-    setXp(completeScene(scene.id, part, good, engine ? yours : 0));
+    completeScene(scene.id, part, good, engine ? yours : 0);
     setPhase("done");
   }, [phase, idx, script, part, takes, scene.id, engine]);
 
@@ -126,7 +116,7 @@ export function ScenePlayer({ scene }: { scene: Scene }) {
       });
     } catch (e) {
       const code = e instanceof SttError ? e.code : "failed";
-      if (code !== "aborted") setError(STT_ERRORS[code]);
+      if (code !== "aborted") setError(STT_ERROR_TEXT[code]);
     } finally {
       live.current = null;
       setMic("idle");
@@ -152,8 +142,7 @@ export function ScenePlayer({ scene }: { scene: Scene }) {
           {part ? `You played ${CAST[part].name} in “${scene.title}”.` : "Now try it again with a part of your own."}
         </p>
         {part && (
-          <div className="mt-6 grid w-full grid-cols-2 gap-3">
-            <StatCard label="Total XP" value={xp} tone="saffron" />
+          <div className="mt-6 grid w-full max-w-[12rem] grid-cols-1 gap-3">
             <StatCard label="Lines said well" value={engine ? `${good}/${yours}` : "—"} tone="pista" />
           </div>
         )}

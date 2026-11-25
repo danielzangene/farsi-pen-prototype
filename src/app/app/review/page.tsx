@@ -55,7 +55,7 @@ export default function ReviewPage() {
     return () => {
       if (url) URL.revokeObjectURL(url);
     };
-  }, [item?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [item?.id]); // Per item: reloading on every edit of the same item would refetch its recording.
 
   const update = (next: Record<string, Verdict>) => {
     setVerdicts(next);

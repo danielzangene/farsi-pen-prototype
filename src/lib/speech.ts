@@ -121,11 +121,6 @@ export function stopSpeaking() {
   if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();
 }
 
-/** True when the device itself has a Persian voice (no download needed). */
-export function hasDeviceVoice(): boolean {
-  return persianVoice() !== null;
-}
-
 export function onVoicesChanged(cb: () => void): () => void {
   if (typeof window === "undefined") return () => {};
   natural();

@@ -16,9 +16,9 @@ type View =
   | { kind: "listening" | "reading"; lesson: ReadingLesson }
   | { kind: "writing"; task: WritingTask }
   | { kind: "speaking"; task: SpeakingTask }
-  | { kind: "saved"; skill: Skill; score: number; xp: number }
+  | { kind: "saved"; skill: Skill; score: number }
   | { kind: "mock"; step: number; plan: MockPlan; scores: Partial<SamfaMock["scores"]> }
-  | { kind: "mockDone"; scores: SamfaMock["scores"]; xp: number };
+  | { kind: "mockDone"; scores: SamfaMock["scores"] };
 
 type MockPlan = { listening: ReadingLesson; reading: ReadingLesson; writing: WritingTask; speaking: SpeakingTask };
 const MOCK_STEPS: Skill[] = ["listening", "reading", "writing", "speaking"];
@@ -31,7 +31,10 @@ export default function SamfaPage() {
   if (!hydrated) return null;
 
   const home = () => setView({ kind: "home" });
-  const saved = (skill: Skill, score: number) => setView({ kind: "saved", skill, score, xp: completeSamfaPractice(skill, score) });
+  const saved = (skill: Skill, score: number) => {
+    completeSamfaPractice(skill);
+    setView({ kind: "saved", skill, score });
+  };
   const scale = (c: number, t: number) => Math.round((c / t) * 60);
 
   if (view.kind === "mock") {
@@ -41,7 +44,8 @@ export default function SamfaPage() {
       if (view.step + 1 < MOCK_STEPS.length) setView({ ...view, step: view.step + 1, scores });
       else {
         const full = scores as SamfaMock["scores"];
-        setView({ kind: "mockDone", scores: full, xp: saveSamfaMock(full) });
+        saveSamfaMock(full);
+        setView({ kind: "mockDone", scores: full });
       }
     };
     return (
@@ -81,7 +85,7 @@ export default function SamfaPage() {
           ))}
         </ul>
         <p className="mt-4 text-sm font-semibold text-muted">
-          A short practice version with {view.xp} XP earned. Listening and reading are scored; writing and speaking are your own estimate against the model.
+          A short practice version. Listening and reading are scored; writing and speaking are your own estimate against the model.
         </p>
         <button type="button" className="btn-primary btn-lg mt-6 w-full" onClick={home}>
           Back to SAMFA
@@ -98,7 +102,6 @@ export default function SamfaPage() {
           {view.score}
           <span className="text-2xl text-muted">/60</span>
         </p>
-        <p className="mt-2 font-extrabold text-saffron-ink">+{view.xp} XP</p>
         <div className="mt-8 flex flex-col gap-3">
           <button type="button" className="btn-primary btn-lg" onClick={() => setView({ kind: "pick", skill: view.skill })}>
             Another {SKILL[view.skill].name.toLowerCase()} task
@@ -283,9 +286,9 @@ export default function SamfaPage() {
             <span className="block font-extrabold">Written vs spoken</span>
             <span className="block text-sm font-semibold text-muted">Write in kitâbi Persian, not the way you speak</span>
           </Link>
-          <Link href="/app/grammar/" className="tile p-4">
+          <Link href="/app/" className="tile p-4">
             <span className="block font-extrabold">B1–B2 grammar</span>
-            <span className="block text-sm font-semibold text-muted">Passive, conditionals, reported speech…</span>
+            <span className="block text-sm font-semibold text-muted">Passive, conditionals, reported speech… on Home</span>
           </Link>
         </div>
       </section>

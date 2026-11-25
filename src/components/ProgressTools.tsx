@@ -2,8 +2,17 @@
 import { useEffect, useRef, useState } from "react";
 import { BellOff, BellRing, CalendarPlus, CheckCircle2, Download, Upload } from "lucide-react";
 import { reminderIcs } from "@/lib/reminder";
-import { importProgress, updateSettings, useProgress } from "@/lib/store";
-import { downloadBackup } from "./TodayPlan";
+import { dayKey } from "@/lib/gamification";
+import { exportProgress, importProgress, updateSettings, useProgress } from "@/lib/store";
+
+function downloadBackup() {
+  const blob = new Blob([exportProgress()], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `farsi-pen-progress-${dayKey()}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
 
 /** Settings: back up / restore progress and a daily reminder. */
 export function ProgressTools() {
@@ -56,7 +65,7 @@ export function ProgressTools() {
       <div className="pb-4">
         <p className="font-bold">Back up your progress</p>
         <p className="mt-1 text-sm font-semibold text-muted">
-          Progress is saved in this browser. Save a file to keep your streak and reviews safe, or to move to another device.
+          Progress is saved in this browser. Save a file to keep your lessons and reviews safe, or to move to another device.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <button type="button" className="btn-secondary btn-sm" onClick={downloadBackup}>

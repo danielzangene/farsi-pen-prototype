@@ -1,13 +1,16 @@
 "use client";
-// Guest-mode progress store (spec §4.1: "guest mode with local progress").
-// Everything lives in localStorage under one key; when accounts arrive this
-// object is what gets merged into Supabase on sign-up.
+// Progress store. Everything lives in localStorage under one key and stays on
+// this device; only Settings follow a signed-in learner (profile-sync.ts).
+// Fields marked "retired" are no longer read but stay, so saved progress,
+// backup files and older copies of the app keep the same shape. XP and the day
+// streak are gone (flames replace them, on the Supabase profile: flame.ts);
+// normalise() drops them from older saves and backups.
 
 import { useSyncExternalStore } from "react";
 import { LESSONS } from "@/content/lessons";
 import { LETTERS, TRACE_PASS } from "@/content/alphabet";
 import { GRAMMAR } from "@/content/grammar";
-import { dayKey, earnedBadges, extendStreak, liveStreak, XP, type BadgeStats, type Streak } from "./gamification";
+import { BADGES, dayKey, earnedBadges, type BadgeStats } from "./gamification";
 import { STORAGE_KEY } from "./util";
 import { gradeFor, isLearned, review, type StoredCard } from "./srs";
 import { DEFAULT_PIPER_VOICE, type PiperVoiceId } from "./tts";
@@ -33,6 +36,7 @@ export interface Settings {
   /** Hide transliteration entirely (reading practice). */
   scriptOnly: boolean;
   showKeyboard: boolean;
+  /** Retired: the Home "Getting started" checklist is gone (still synced as profiles.checklist_hidden). */
   checklistHidden: boolean;
   /** Dark by default; "system" follows the device setting. */
   theme: Theme;
@@ -44,7 +48,7 @@ export interface Settings {
   goal: Goal | null;
   reads: Reads | null;
   onboarded: boolean;
-  /** Last day (dayKey) we suggested backing up progress, so it's asked once. */
+  /** Retired: the backup suggestion is gone. */
   backupNudge: string | null;
   /** Daily reminder time ("HH:MM"), or null when off. */
   reminder: string | null;
@@ -54,20 +58,19 @@ export interface Settings {
 
 export type Goal = "travel" | "family" | "heritage" | "curious";
 export type Reads = "yes" | "some" | "no";
-/** Kinds of practice logged per day, for the Today plan. */
+/** Kinds of practice logged per day; any entry marks the day as practised. */
 export type ActivityKind = "review" | "lesson" | "mission" | "grammar" | "alphabet" | "speak" | "reading";
 
 export interface ProgressState {
   version: 1;
-  xp: number;
   lessons: Record<string, { best: number; attempts: number; completedAt?: string }>;
   cards: Record<string, StoredCard>;
   bookmarks: string[];
   hidden: string[];
   daily: Record<string, DayRecord>;
-  streak: Streak;
   grammar: Record<string, { best: number; passed: boolean }>;
   traced: Record<string, number>;
+  /** Retired: Daily Practice is gone. */
   practiceSessions: number;
   earnedBadges: string[];
   settings: Settings;
@@ -102,10 +105,9 @@ export interface SamfaMock {
 
 export interface DayRecord {
   words: number;
-  xp: number;
   /** Takes spoken into the mic today. */
   spoken?: number;
-  /** Daily quests collected today. */
+  /** Retired: daily quests are gone. */
   quests?: string[];
 }
 
@@ -155,13 +157,11 @@ const KEY = STORAGE_KEY;
 
 export const DEFAULT_STATE: ProgressState = {
   version: 1,
-  xp: 0,
   lessons: {},
   cards: {},
   bookmarks: [],
   hidden: [],
   daily: {},
-  streak: { current: 0, record: 0, lastDay: null },
   grammar: {},
   traced: {},
   practiceSessions: 0,
@@ -201,12 +201,33 @@ export const DEFAULT_STATE: ProgressState = {
 let state: ProgressState | null = null;
 const listeners = new Set<() => void>();
 
+const BADGE_IDS = new Set(BADGES.map((b) => b.id));
+
+/**
+ * Saved progress (from this browser or a backup file) on today's defaults. Drops what older versions kept
+ * and this one doesn't: total XP and the streak, XP per day, and badges that no longer exist.
+ */
+function normalise(saved: Partial<ProgressState>): ProgressState {
+  const { xp: _xp, streak: _streak, ...rest } = saved as Partial<ProgressState> & { xp?: unknown; streak?: unknown };
+  const daily: Record<string, DayRecord> = {};
+  for (const [key, day] of Object.entries(rest.daily ?? {})) {
+    const { xp: _dayXp, ...kept } = day as DayRecord & { xp?: unknown };
+    daily[key] = kept;
+  }
+  return {
+    ...DEFAULT_STATE,
+    ...rest,
+    daily,
+    earnedBadges: (rest.earnedBadges ?? []).filter((id) => BADGE_IDS.has(id)),
+    settings: { ...DEFAULT_STATE.settings, ...rest.settings },
+  };
+}
+
 function load(): ProgressState {
   if (state) return state;
   try {
     const raw = localStorage.getItem(KEY);
-    const parsed = raw ? (JSON.parse(raw) as Partial<ProgressState>) : {};
-    state = { ...DEFAULT_STATE, ...parsed, settings: { ...DEFAULT_STATE.settings, ...parsed.settings } };
+    state = normalise(raw ? (JSON.parse(raw) as Partial<ProgressState>) : {});
   } catch {
     state = DEFAULT_STATE;
   }
@@ -279,11 +300,17 @@ export function wordsLearned(s: ProgressState): number {
 }
 
 export function today(s: ProgressState) {
-  return s.daily[dayKey()] ?? { words: 0, xp: 0 };
+  return s.daily[dayKey()] ?? { words: 0 };
 }
 
-export function currentStreak(s: ProgressState): number {
-  return liveStreak(s.streak, dayKey());
+/** Whether anything was ever practised (a lesson, review or any other activity on record). */
+export function practisedBefore(s: ProgressState): boolean {
+  return Object.keys(s.activity ?? {}).length > 0 || Object.values(s.daily).some((d) => d.words > 0) || Object.keys(s.lessons).length > 0;
+}
+
+/** Whether anything was practised today (any activity logged, or words counted toward the daily goal). */
+export function practisedToday(s: ProgressState): boolean {
+  return (s.activity?.[dayKey()]?.length ?? 0) > 0 || today(s).words > 0;
 }
 
 export function badgeStats(s: ProgressState): BadgeStats {
@@ -293,8 +320,6 @@ export function badgeStats(s: ProgressState): BadgeStats {
     level1Done: LESSONS.filter((l) => l.level === 1 && s.lessons[l.id]?.completedAt).length,
     level1Total: LESSONS.filter((l) => l.level === 1).length,
     wordsLearned: wordsLearned(s),
-    recordStreak: s.streak.record,
-    xp: s.xp,
     lettersTraced: LETTERS.filter((l) => (s.traced[l.id] ?? 0) >= TRACE_PASS).length,
     totalLetters: LETTERS.length,
     grammarDone: GRAMMAR.filter((g) => s.grammar[g.id]?.passed).length,
@@ -305,16 +330,20 @@ export function badgeStats(s: ProgressState): BadgeStats {
 
 function withBadges(s: ProgressState): ProgressState {
   const earned = earnedBadges(badgeStats(s));
-  // Badges are kept once earned, even if a streak later resets.
+  // Badges are kept once earned.
   const merged = Array.from(new Set([...s.earnedBadges, ...earned]));
   return merged.length === s.earnedBadges.length ? s : { ...s, earnedBadges: merged };
 }
 
 // ── Actions ────────────────────────────────────────────────────────────────
 
-/** Logs a kind of practice for today (kept for 30 days). */
+/**
+ * Logs a kind of practice for today (kept for 30 days). Today also gets a daily record, which stays
+ * after the 30 days and marks the day as practised for good.
+ */
 function logActivity(s: ProgressState, kind: ActivityKind): ProgressState {
   const key = dayKey();
+  if (!s.daily[key]) s = { ...s, daily: { ...s.daily, [key]: { words: 0 } } };
   const day = s.activity?.[key] ?? [];
   if (day.includes(kind)) return s;
   const keep = Object.keys(s.activity ?? {}).sort().slice(-29);
@@ -328,17 +357,12 @@ export function markActivity(kind: ActivityKind) {
   update((s) => logActivity(s, kind));
 }
 
-function addActivity(s: ProgressState, words: number, xp: number): ProgressState {
+/** Counts `words` toward today's daily goal. */
+function addWords(s: ProgressState, words: number): ProgressState {
+  if (!words) return s;
   const key = dayKey();
-  const day = s.daily[key] ?? { words: 0, xp: 0 };
-  const nextDay = { ...day, words: day.words + words, xp: day.xp + xp };
-  const goalMet = nextDay.words >= s.settings.dailyGoal;
-  return {
-    ...s,
-    xp: s.xp + xp,
-    daily: { ...s.daily, [key]: nextDay },
-    streak: goalMet ? extendStreak(s.streak, key) : s.streak,
-  };
+  const day = s.daily[key] ?? { words: 0 };
+  return { ...s, daily: { ...s.daily, [key]: { ...day, words: day.words + words } } };
 }
 
 function reviewAll(cards: Record<string, StoredCard>, outcomes: Record<string, Outcome>) {
@@ -353,10 +377,8 @@ export interface SessionSummary {
   outcomes: Record<string, Outcome>;
 }
 
-/** Returns the XP awarded. */
-export function completeLesson(lessonId: string, r: SessionSummary): number {
+export function completeLesson(lessonId: string, r: SessionSummary) {
   const pct = r.total ? Math.round((r.correct / r.total) * 100) : 0;
-  const xp = r.correct * XP.perCorrect + XP.lessonComplete + (pct === 100 ? XP.perfectBonus : 0);
   update((s) => {
     const prev = s.lessons[lessonId];
     const next: ProgressState = {
@@ -371,48 +393,33 @@ export function completeLesson(lessonId: string, r: SessionSummary): number {
         },
       },
     };
-    return logActivity(addActivity(next, Object.keys(r.outcomes).length, xp), "lesson");
+    return logActivity(addWords(next, Object.keys(r.outcomes).length), "lesson");
   });
-  return xp;
 }
 
-export function completePractice(r: SessionSummary): number {
-  const xp = r.correct * XP.practicePerCorrect;
+export function completePractice(r: SessionSummary) {
   update((s) =>
     logActivity(
-      addActivity(
-        { ...s, cards: reviewAll(s.cards, r.outcomes), practiceSessions: s.practiceSessions + 1 },
-        Object.keys(r.outcomes).length,
-        xp,
-      ),
+      addWords({ ...s, cards: reviewAll(s.cards, r.outcomes), practiceSessions: s.practiceSessions + 1 }, Object.keys(r.outcomes).length),
       "review",
     ),
   );
-  return xp;
 }
 
 /**
- * Records a mission session. Every answer is evidence for its skill; XP is
- * given only when a skill becomes mastered for the first time, so replaying
- * an easy mission earns nothing. When the whole mission is mastered its
- * vocabulary joins spaced review.
+ * Records a mission session. Every answer is evidence for its skill. When the
+ * whole mission is mastered its vocabulary joins spaced review.
  */
 export function completeMission(
   missionId: string,
   evidence: Evidence[],
   result: { status: MissionStatus; score: number } | null,
   wordIds: string[] = [],
-): number {
-  let xp = 0;
+) {
   update((s) => {
     const now = new Date();
     const skills = { ...s.skills };
-    for (const e of evidence) {
-      const before = skills[e.skill];
-      const after = applyEvidence(before, e.context, e.ok, now);
-      if (!before?.masteredAt && after.state === "mastered") xp += XP.skillMastered;
-      skills[e.skill] = after;
-    }
+    for (const e of evidence) skills[e.skill] = applyEvidence(skills[e.skill], e.context, e.ok, now);
     let next: ProgressState = { ...s, skills };
     if (result) {
       const prev = s.missions[missionId];
@@ -428,15 +435,13 @@ export function completeMission(
         },
       };
       if (mastered && !prev?.masteredAt) {
-        xp += XP.missionMastered;
         const cards = { ...next.cards };
         for (const id of wordIds) if (!cards[id]) cards[id] = review(undefined, gradeFor("good"), now);
         next = { ...next, cards };
       }
     }
-    return logActivity(addActivity(next, 0, xp), "mission");
+    return logActivity(next, "mission");
   });
-  return xp;
 }
 
 export function skillMastered(s: ProgressState, skillId: string): boolean {
@@ -444,133 +449,102 @@ export function skillMastered(s: ProgressState, skillId: string): boolean {
 }
 
 /**
- * Flashcard session: every first rating updates the word's FSRS card. XP only
- * for words that were due or new, so re-running a deck can't farm points.
+ * Flashcard session: every first rating updates the word's FSRS card. Only
+ * words that were due or new count toward the daily goal, so re-running a deck
+ * doesn't fill it.
  */
-export function completeFlashcards(outcomes: Record<string, Outcome>, eligible: Set<string>): number {
-  const xp = Object.entries(outcomes).filter(([id, o]) => o !== "again" && eligible.has(id)).length * XP.practicePerCorrect;
-  update((s) => logActivity(addActivity({ ...s, cards: reviewAll(s.cards, outcomes) }, Object.keys(outcomes).filter((id) => eligible.has(id)).length, xp), "review"));
-  return xp;
+export function completeFlashcards(outcomes: Record<string, Outcome>, eligible: Set<string>) {
+  update((s) => logActivity(addWords({ ...s, cards: reviewAll(s.cards, outcomes) }, Object.keys(outcomes).filter((id) => eligible.has(id)).length), "review"));
 }
 
-/** Speaking practice: XP per word said right (or nearly); counts toward the daily goal. */
-export function completeSpeaking(r: SessionSummary): number {
-  const xp = r.correct * XP.speakPerCorrect;
-  update((s) => logActivity(addActivity(s, Object.keys(r.outcomes).length, xp), "speak"));
-  return xp;
+/** Speaking practice: every word tried counts toward the daily goal. */
+export function completeSpeaking(r: SessionSummary) {
+  update((s) => logActivity(addWords(s, Object.keys(r.outcomes).length), "speak"));
 }
 
-/** A scene played as `part` (or just listened to, part = null). XP: 2 per line said well, +5 for a new part. */
-export function completeScene(sceneId: string, part: string | null, good: number, total: number): number {
-  let xp = 0;
+/** A scene played as `part` (or just listened to, part = null). */
+export function completeScene(sceneId: string, part: string | null, good: number, total: number) {
   update((s) => {
     const prev = s.scenes?.[sceneId];
     const parts = prev?.parts ?? [];
     const newPart = !!part && !parts.includes(part);
-    xp = part ? good * XP.speakPerCorrect + (newPart ? 5 : 0) : 0;
     const score = total ? Math.round((good / total) * 100) : 0;
     const rec: SceneRecord = { parts: newPart ? [...parts, part!] : parts, best: Math.max(prev?.best ?? 0, part ? score : 0), plays: (prev?.plays ?? 0) + 1, last: dayKey() };
     const next = { ...s, scenes: { ...(s.scenes ?? {}), [sceneId]: rec } };
-    return part ? logActivity(addActivity(next, 0, xp), "speak") : next;
+    return part ? logActivity(next, "speak") : next;
   });
-  return xp;
 }
 
-/** A hands-free session: 1 XP per two items heard and repeated. */
-export function completeHandsFree(items: number): number {
-  const xp = Math.ceil(items / 2);
-  if (items > 0) update((s) => logActivity(addActivity(s, 0, xp), "speak"));
-  return xp;
+/** A hands-free session with `items` heard and repeated. */
+export function completeHandsFree(items: number) {
+  if (items > 0) markActivity("speak");
 }
 
-/** A finished reading lesson: 2 XP per question right, +10 the first time. */
-export function completeReading(id: string, correct: number, total: number): number {
-  let xp = 0;
+/** A finished reading lesson: the best comprehension score and the day it was first finished. */
+export function completeReading(id: string, correct: number, total: number) {
   update((s) => {
     const prev = s.readings?.[id];
-    xp = correct * XP.perCorrect + (prev ? 0 : 10);
     const best = Math.max(prev?.best ?? 0, total ? Math.round((correct / total) * 100) : 0);
-    return logActivity(addActivity({ ...s, readings: { ...(s.readings ?? {}), [id]: { best, doneAt: prev?.doneAt ?? dayKey() } } }, 0, xp), "reading");
+    return logActivity({ ...s, readings: { ...(s.readings ?? {}), [id]: { best, doneAt: prev?.doneAt ?? dayKey() } } }, "reading");
   });
-  return xp;
 }
 
 /**
  * A stage of the sound path (or its test-out). `stage` is the stage index,
- * or "test". Returns XP and, for the test, whether you tested out.
+ * or "test"; `passed` says whether the test was passed.
  */
-export function completeSoundStage(unitId: string, stage: number | "test", outcomes: Record<string, Outcome>, stars: number, passed = false): number {
-  let xp = 0;
+export function completeSoundStage(unitId: string, stage: number | "test", outcomes: Record<string, Outcome>, stars: number, passed = false) {
   update((s) => {
     const prev = s.soundPath?.[unitId] ?? { stars: [] };
-    const good = Object.values(outcomes).filter((o) => o !== "again").length;
     const wordScores = { ...(prev.wordScores ?? {}) };
     for (const [id, o] of Object.entries(outcomes)) wordScores[id] = o === "good" ? 100 : o === "hard" ? 60 : 20;
     let rec: SoundPathRecord = { ...prev, wordScores };
     if (stage === "test") {
-      xp = passed && !prev.testedOut ? 15 : good;
       if (passed) rec = { ...rec, testedOut: true };
     } else {
       const starsList = [...prev.stars];
-      const first = starsList[stage] === undefined;
       starsList[stage] = Math.max(starsList[stage] ?? 0, stars);
       rec = { ...rec, stars: starsList };
-      xp = good * XP.speakPerCorrect + (first ? 3 : 0);
     }
-    return logActivity(addActivity({ ...s, soundPath: { ...(s.soundPath ?? {}), [unitId]: rec } }, 0, xp), "speak");
+    return logActivity({ ...s, soundPath: { ...(s.soundPath ?? {}), [unitId]: rec } }, "speak");
   });
-  return xp;
 }
 
-export function savePlacement(level: NonNullable<ProgressState["placement"]>["level"], correct: number, total: number): number {
-  const xp = correct;
-  update((s) => logActivity(addActivity({ ...s, placement: { level, at: dayKey(), correct, total } }, 0, xp), "lesson"));
-  return xp;
+export function savePlacement(level: NonNullable<ProgressState["placement"]>["level"], correct: number, total: number) {
+  update((s) => logActivity({ ...s, placement: { level, at: dayKey(), correct, total } }, "lesson"));
 }
 
-/** One SAMFA practice task (skill = listening/reading/writing/speaking); XP from its 0–60 score. */
-export function completeSamfaPractice(skill: string, score60: number): number {
-  const xp = Math.round(score60 / 6);
+/** One SAMFA practice task (skill = listening/reading/writing/speaking). */
+export function completeSamfaPractice(skill: string) {
   update((s) => {
     const prev = s.samfa ?? { mocks: [], practised: {} };
     const next = { ...s, samfa: { ...prev, practised: { ...prev.practised, [skill]: (prev.practised[skill] ?? 0) + 1 } } };
-    return logActivity(addActivity(next, 0, xp), "reading");
+    return logActivity(next, "reading");
   });
-  return xp;
 }
 
-export function saveSamfaMock(scores: SamfaMock["scores"]): number {
+export function saveSamfaMock(scores: SamfaMock["scores"]) {
   const total = scores.listening + scores.reading + scores.writing + scores.speaking;
-  const xp = Math.round(total / 8);
   update((s) => {
     const prev = s.samfa ?? { mocks: [], practised: {} };
-    return logActivity(addActivity({ ...s, samfa: { ...prev, mocks: [...prev.mocks, { at: dayKey(), scores, total }].slice(-20) } }, 0, xp), "reading");
+    return logActivity({ ...s, samfa: { ...prev, mocks: [...prev.mocks, { at: dayKey(), scores, total }].slice(-20) } }, "reading");
   });
-  return xp;
 }
 
-export function completeGrammar(id: string, correct: number, total: number): number {
+export function completeGrammar(id: string, correct: number, total: number) {
   const pct = total ? Math.round((correct / total) * 100) : 0;
-  const xp = correct * XP.grammarPerCorrect;
   update((s) => {
     const prev = s.grammar[id];
-    return logActivity(
-      addActivity({ ...s, grammar: { ...s.grammar, [id]: { best: Math.max(prev?.best ?? 0, pct), passed: !!prev?.passed || pct >= 80 } } }, 0, xp),
-      "grammar",
-    );
+    return logActivity({ ...s, grammar: { ...s.grammar, [id]: { best: Math.max(prev?.best ?? 0, pct), passed: !!prev?.passed || pct >= 80 } } }, "grammar");
   });
-  return xp;
 }
 
-/** Records a tracing score (0–100); XP the first time a letter passes. */
-export function recordTrace(letterId: string, score: number): number {
-  let xp = 0;
+/** Records a tracing score (0–100); the best one per letter is kept. */
+export function recordTrace(letterId: string, score: number) {
   update((s) => {
     const prev = s.traced[letterId] ?? 0;
-    xp = prev < TRACE_PASS && score >= TRACE_PASS ? XP.tracePass : 0;
-    return logActivity(addActivity({ ...s, traced: { ...s.traced, [letterId]: Math.max(prev, score) } }, 0, xp), "alphabet");
+    return logActivity({ ...s, traced: { ...s.traced, [letterId]: Math.max(prev, score) } }, "alphabet");
   });
-  return xp;
 }
 
 function toggle(list: string[], id: string) {
@@ -592,7 +566,7 @@ export function recordSounds(scores: { sound: string; score: number }[]) {
       stats[id] = prev ? { n: prev.n + 1, avg: Math.round(prev.avg * 0.7 + score * 0.3), last: at } : { n: 1, avg: Math.round(score), last: at };
     });
     const key = dayKey();
-    const day = s.daily[key] ?? { words: 0, xp: 0 };
+    const day = s.daily[key] ?? { words: 0 };
     const history: Record<string, Record<string, number>> = {};
     for (const k of Object.keys(s.soundHistory ?? {}).sort().slice(-119)) history[k] = s.soundHistory[k];
     const todayScores = { ...(history[key] ?? {}) };
@@ -600,21 +574,6 @@ export function recordSounds(scores: { sound: string; score: number }[]) {
     history[key] = todayScores;
     return { ...s, soundStats: stats, soundHistory: history, daily: { ...s.daily, [key]: { ...day, spoken: (day.spoken ?? 0) + 1 } } };
   });
-}
-
-/** Collects a finished daily quest's bonus XP (once per quest per day). */
-export function claimQuest(id: string, xp: number): boolean {
-  let ok = false;
-  update((s) => {
-    const key = dayKey();
-    const day = s.daily[key] ?? { words: 0, xp: 0 };
-    if (day.quests?.includes(id)) return s;
-    ok = true;
-    const next = addActivity(s, 0, xp);
-    const d = next.daily[key];
-    return { ...next, daily: { ...next.daily, [key]: { ...d, quests: [...(d.quests ?? []), id] } } };
-  });
-  return ok;
 }
 
 /** Adds a dictionary word to My cards (and returns its id). */
@@ -655,8 +614,8 @@ export function importProgress(text: string): boolean {
   try {
     const data = JSON.parse(text) as { app?: string; progress?: Partial<ProgressState> };
     const p = data.app === "farsi-pen" ? data.progress : (data as Partial<ProgressState>);
-    if (!p || p.version !== 1 || typeof p.xp !== "number" || typeof p.cards !== "object") return false;
-    save(withBadges({ ...DEFAULT_STATE, ...p, settings: { ...DEFAULT_STATE.settings, ...p.settings } } as ProgressState));
+    if (!p || p.version !== 1 || typeof p.cards !== "object" || p.cards === null) return false;
+    save(withBadges(normalise(p)));
     return true;
   } catch {
     return false;
